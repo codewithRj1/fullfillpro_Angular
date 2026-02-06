@@ -1,0 +1,67 @@
+Application bundle generation failed. [5.440 seconds] - 2026-02-05T04:45:17.530Z
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mNG8113: DataTableComponent is not used within the template of InventoryComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/inventory/inventory.component.ts:17:8:
+[37m      17 │         [32mDataTableComponent[37m,
+         ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mNG8113: StatusBadgeComponent is not used within the template of InventoryComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/inventory/inventory.component.ts:18:8:
+[37m      18 │         [32mStatusBadgeComponent[37m
+         ╵         [32m~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mNG8113: DataTableComponent is not used within the template of OrdersComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/orders/orders.component.ts:18:8:
+[37m      18 │         [32mDataTableComponent[37m,
+         ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mNG8113: DataTableComponent is not used within the template of ProductsComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/products/products.component.ts:13:62:
+[37m      13 │ ..., LucideAngularModule, [32mDataTableComponent[37m, MarketplaceBadgeComp...
+         ╵                           [32m~~~~~~~~~~~~~~~~~~[0m
+
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mNG8113: DataTableComponent is not used within the template of WarehousesComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/warehouses/warehouses.component.ts:11:41:
+[37m      11 │     imports: [CommonModule, FormsModule, [32mDataTableComponent[37m],
+         ╵                                          [32m~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG5002: Parser Error: Bindings cannot contain assignments at column 34 in [let wh of warehouses().filter(w => w.isActive)] in D:\FullFillmentApp\fulfillment-hub-india\frontend-angular\src\app\features\warehouses\warehouses.component.html@271:32[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/warehouses/warehouses.component.html:272:32:
+[37m      272 │ ...  <option [32m*ngFor="let wh of warehouses().filter(w => w.isActiv[37m...
+          ╵              [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component WarehousesComponent.
+
+    src/app/features/warehouses/warehouses.component.ts:12:17:
+[37m      12 │     templateUrl: [32m'./warehouses.component.html'[37m,
+         ╵                  [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2769: No overload matches this call.
+  Overload 1 of 2, '(predicate: (value: Warehouse, index: number, array: Warehouse[]) => value is Warehouse, thisArg?: any): Warehouse[]', gave the following error.
+    Argument of type 'undefined' is not assignable to parameter of type '(value: Warehouse, index: number, array: Warehouse[]) => value is Warehouse'.
+  Overload 2 of 2, '(predicate: (value: Warehouse, index: number, array: Warehouse[]) => unknown, thisArg?: any): Warehouse[]', gave the following error.
+    Argument of type 'undefined' is not assignable to parameter of type '(value: Warehouse, index: number, array: Warehouse[]) => unknown'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/warehouses/warehouses.component.html:272:70:
+[37m      272 │ ..."let wh of warehouses().filter([32mw => w.isActive[37m)" [value]="wh.id">
+          ╵                                   [32m~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component WarehousesComponent.
+
+    src/app/features/warehouses/warehouses.component.ts:12:17:
+[37m      12 │     templateUrl: [32m'./warehouses.component.html'[37m,
+         ╵                  [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m

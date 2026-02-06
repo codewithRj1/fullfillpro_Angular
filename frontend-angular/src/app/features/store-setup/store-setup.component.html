@@ -1,0 +1,348 @@
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-display font-bold">Store Setup</h1>
+            <p class="text-muted-foreground">Connect marketplaces and configure your fulfillment settings</p>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="border-b border-border">
+        <div class="flex gap-4">
+            <button (click)="activeTab.set('marketplaces')"
+                [class]="'px-4 py-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ' +
+                       (activeTab() === 'marketplaces' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground')">
+                <lucide-icon name="store" class="w-4 h-4"></lucide-icon> Marketplaces
+            </button>
+            <button (click)="activeTab.set('warehouses')"
+                [class]="'px-4 py-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ' +
+                       (activeTab() === 'warehouses' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground')">
+                <lucide-icon name="warehouse" class="w-4 h-4"></lucide-icon> Warehouses
+            </button>
+            <button (click)="activeTab.set('tax')"
+                [class]="'px-4 py-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ' +
+                       (activeTab() === 'tax' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground')">
+                <lucide-icon name="receipt" class="w-4 h-4"></lucide-icon> Tax & GST
+            </button>
+            <button (click)="activeTab.set('shipping')"
+                [class]="'px-4 py-2 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ' +
+                       (activeTab() === 'shipping' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground')">
+                <lucide-icon name="truck" class="w-4 h-4"></lucide-icon> Shipping Rules
+            </button>
+        </div>
+    </div>
+
+    <!-- Marketplaces Tab -->
+    <div *ngIf="activeTab() === 'marketplaces'" class="space-y-4">
+        <div>
+            <p class="text-muted-foreground">Connect your seller accounts from various marketplaces</p>
+        </div>
+
+
+        <!-- Marketplace Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div *ngFor="let marketplace of allMarketplaces"
+                class="p-4 bg-card rounded-xl border border-border hover:shadow-md transition-shadow">
+                <!-- Card Header -->
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <div
+                            [class]="'w-12 h-12 rounded-lg flex items-center justify-center text-white ' + marketplace.color">
+                            <lucide-icon [name]="marketplace.icon" class="w-6 h-6"></lucide-icon>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold">{{ marketplace.name }}</h3>
+                            <p class="text-sm text-muted-foreground">{{ marketplace.country }}</p>
+                            <p *ngIf="getMarketplaceConnection(marketplace.id).sellerId"
+                                class="text-xs font-mono text-muted-foreground mt-0.5">
+                                ID: {{ getMarketplaceConnection(marketplace.id).sellerId }}
+                            </p>
+                        </div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" [checked]="getMarketplaceConnection(marketplace.id).isActive"
+                            (change)="toggleMarketplace(marketplace.id)" class="sr-only peer">
+                        <div
+                            class="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all">
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Connection Status -->
+                <div class="space-y-3">
+                    <div *ngIf="getMarketplaceConnection(marketplace.id).isActive"
+                        class="flex items-center gap-2 text-sm text-success">
+                        <lucide-icon name="check-circle" class="w-4 h-4"></lucide-icon>
+                        Connected
+                    </div>
+                    <div *ngIf="!getMarketplaceConnection(marketplace.id).isActive"
+                        class="flex items-center gap-2 text-sm text-muted-foreground">
+                        <lucide-icon name="alert-circle" class="w-4 h-4"></lucide-icon>
+                        Not Connected
+                    </div>
+
+                    <p *ngIf="getMarketplaceConnection(marketplace.id).lastSynced"
+                        class="text-xs text-muted-foreground">
+                        Last synced: {{ getMarketplaceConnection(marketplace.id).lastSynced | date:'dd MMM yyyy, HH:mm'
+                        }}
+                    </p>
+
+                    <!-- Action Buttons -->
+                    <div class="flex gap-2">
+                        <button (click)="configureMarketplace(marketplace.id)"
+                            class="flex-1 px-3 py-2 text-sm border border-border rounded-lg hover:bg-accent flex items-center justify-center gap-1">
+                            <lucide-icon name="settings-2" class="w-3 h-3"></lucide-icon> Configure
+                        </button>
+                        <button *ngIf="getMarketplaceConnection(marketplace.id).isActive"
+                            (click)="syncMarketplace(marketplace.id)"
+                            class="px-3 py-2 text-sm border border-border rounded-lg hover:bg-accent flex items-center gap-1">
+                            <lucide-icon name="refresh-cw" class="w-3 h-3"></lucide-icon> Sync
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Text -->
+        <div class="p-4 bg-info/10 border border-info/20 rounded-lg">
+            <div class="flex gap-3">
+                <lucide-icon name="info" class="w-5 h-5 text-info flex-shrink-0"></lucide-icon>
+                <div class="text-sm">
+                    <p class="font-medium text-info mb-1">How Marketplace Integration Works:</p>
+                    <ul class="list-disc list-inside text-muted-foreground space-y-1">
+                        <li>Each marketplace provides API credentials (API Key, Secret Key, Seller ID)</li>
+                        <li>Configure credentials to enable automatic order import</li>
+                        <li>Orders from all connected marketplaces appear in your Orders page</li>
+                        <li>Sync regularly to fetch new orders and update order status</li>
+                        <li>Track inventory across all channels from one dashboard</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Warehouses Tab -->
+    <div *ngIf="activeTab() === 'warehouses'" class="space-y-4">
+        <div class="flex items-center justify-between">
+            <p class="text-muted-foreground">Manage your warehouse locations for fulfillment</p>
+            <button
+                class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:shadow-md text-sm font-medium flex items-center gap-2">
+                <lucide-icon name="plus" class="w-4 h-4"></lucide-icon> Add Warehouse
+            </button>
+        </div>
+
+        <div class="overflow-x-auto rounded-xl border border-border/50 bg-card/50">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-border/50 bg-muted/20">
+                        <th class="px-4 py-3 text-left font-medium text-muted-foreground">Warehouse</th>
+                        <th class="px-4 py-3 text-left font-medium text-muted-foreground">Address</th>
+                        <th class="px-4 py-3 text-left font-medium text-muted-foreground">Contact</th>
+                        <th class="px-4 py-3 text-left font-medium text-muted-foreground">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border/30">
+                    <tr *ngFor="let warehouse of warehouses()" class="hover:bg-primary/5 transition-colors">
+                        <td class="px-4 py-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                                    <lucide-icon name="warehouse" class="w-5 h-5 text-primary"></lucide-icon>
+                                </div>
+                                <div>
+                                    <p class="font-semibold">{{ warehouse.name }}</p>
+                                    <span *ngIf="warehouse.isDefault"
+                                        class="inline-block px-2 py-0.5 bg-info/10 text-info text-xs rounded mt-0.5">Default</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3">
+                            <p>{{ warehouse.address }}</p>
+                            <p class="text-muted-foreground text-xs">{{ warehouse.city }}, {{ warehouse.state }} - {{
+                                warehouse.pinCode }}</p>
+                        </td>
+                        <td class="px-4 py-3">
+                            <p class="font-medium">{{ warehouse.contactPerson }}</p>
+                            <p class="text-muted-foreground text-xs">{{ warehouse.phone }}</p>
+                        </td>
+                        <td class="px-4 py-3">
+                            <span [class]="'inline-block px-2 py-1 rounded text-xs font-medium ' +
+                             (warehouse.isActive ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground')">
+                                {{ warehouse.isActive ? 'Active' : 'Inactive' }}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr *ngIf="warehouses().length === 0">
+                        <td colspan="4" class="px-4 py-8 text-center text-muted-foreground">No warehouses configured.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Tax & GST Tab -->
+    <div *ngIf="activeTab() === 'tax'" class="space-y-6">
+        <div class="p-6 bg-card rounded-xl border border-border">
+            <h3 class="text-lg font-semibold mb-4">GST Configuration</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium">GSTIN</label>
+                    <input [(ngModel)]="gstGSTIN" type="text"
+                        class="w-full px-3 py-2 border border-border rounded-lg bg-muted/30" readonly>
+                </div>
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium">Legal Name</label>
+                    <input [(ngModel)]="gstLegalName" type="text"
+                        class="w-full px-3 py-2 border border-border rounded-lg bg-muted/30" readonly>
+                </div>
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium">Trade Name</label>
+                    <input [(ngModel)]="gstTradeName" type="text"
+                        class="w-full px-3 py-2 border border-border rounded-lg bg-muted/30" readonly>
+                </div>
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium">Place of Supply</label>
+                    <input [(ngModel)]="gstPlaceOfSupply" type="text"
+                        class="w-full px-3 py-2 border border-border rounded-lg bg-muted/30" readonly>
+                </div>
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium">Default GST Rate (%)</label>
+                    <input [(ngModel)]="gstDefaultRate" type="number"
+                        class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-primary">
+                </div>
+            </div>
+            <div class="mt-6">
+                <button (click)="saveGSTConfig()"
+                    class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:shadow-md">Save
+                    Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shipping Rules Tab -->
+    <div *ngIf="activeTab() === 'shipping'" class="space-y-6">
+        <div class="p-6 bg-card rounded-xl border border-border">
+            <h3 class="text-lg font-semibold mb-4">Carrier Priority</h3>
+            <p class="text-sm text-muted-foreground mb-4">
+                Set carrier preference for automatic carrier assignment when creating shipments
+            </p>
+            <div class="space-y-2">
+                <div *ngFor="let carrier of activeCarriers(); let i = index"
+                    class="flex items-center gap-4 p-3 bg-muted/50 rounded-lg">
+                    <span class="text-lg font-bold text-muted-foreground w-8">#{{ i + 1 }}</span>
+                    <div class="flex-1">
+                        <p class="font-medium">{{ carrier.name }}</p>
+                        <p class="text-sm text-muted-foreground">
+                            {{ carrier.serviceablePinCodes.toLocaleString() }} PINs •
+                            {{ carrier.codEnabled ? 'COD enabled' : 'COD disabled' }}
+                        </p>
+                    </div>
+                    <span [class]="'inline-block px-2 py-1 rounded text-xs font-medium ' +
+                         (carrier.isActive ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground')">
+                        {{ carrier.isActive ? 'Active' : 'Inactive' }}
+                    </span>
+                </div>
+            </div>
+            <div class="mt-6">
+                <button (click)="saveCarrierPriority()"
+                    class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:shadow-md">Save
+                    Priority</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Marketplace Connection Dialog -->
+<div *ngIf="connectDialogOpen()" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+    (click)="connectDialogOpen.set(false)">
+    <div class="bg-card rounded-xl shadow-2xl w-full max-w-md m-4" (click)="$event.stopPropagation()">
+        <div class="p-6 border-b border-border">
+            <div class="flex items-center gap-3">
+                <div
+                    [class]="'w-12 h-12 rounded-lg flex items-center justify-center text-white ' + (connectingMarketplace()?.color || 'bg-primary')">
+                    <lucide-icon [name]="connectingMarketplace()?.icon || 'store'" class="w-6 h-6"></lucide-icon>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold">Connect {{ connectingMarketplace()?.name }}</h2>
+                    <p class="text-sm text-muted-foreground">Enter your seller credentials</p>
+                </div>
+            </div>
+        </div>
+        <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+            <div>
+                <label class="block text-sm font-medium mb-1">Store/Seller Name *</label>
+                <input [(ngModel)]="formStoreName" type="text" placeholder="My Store Name"
+                    class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-primary">
+                <p class="text-xs text-muted-foreground mt-1">Your shop/seller display name</p>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">App ID / API Key *</label>
+                <input [(ngModel)]="formAppKey" type="text" placeholder="Enter App ID or API Key"
+                    class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-primary font-mono text-sm">
+                <p class="text-xs text-muted-foreground mt-1">From {{ connectingMarketplace()?.name }} Seller Dashboard
+                </p>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">App Secret / API Password *</label>
+                <input [(ngModel)]="formAppSecret" type="password" placeholder="Enter App Secret"
+                    class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-primary font-mono text-sm">
+                <p class="text-xs text-muted-foreground mt-1">Keep this secret! Never share publicly</p>
+            </div>
+            <!-- Amazon Specific Fields -->
+            <ng-container *ngIf="connectingMarketplace()?.id?.startsWith('amazon')">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Refresh Token</label>
+                    <input [(ngModel)]="formRefreshToken" type="password" placeholder="Atza|..."
+                        class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-primary font-mono text-sm">
+                    <p class="text-xs text-muted-foreground mt-1">LWA Refresh Token</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Seller ID / Merchant Token</label>
+                    <input [(ngModel)]="formSellerId" type="text" placeholder="A2..."
+                        class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-primary font-mono text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">AWS Access Key ID</label>
+                    <input [(ngModel)]="formAwsAccessKey" type="text" placeholder="AKIA..."
+                        class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-primary font-mono text-sm">
+                    <p class="text-xs text-muted-foreground mt-1">IAM User Access Key for SP-API</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">AWS Secret Access Key</label>
+                    <input [(ngModel)]="formAwsSecret" type="password" placeholder="Secret Key"
+                        class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-primary font-mono text-sm">
+                </div>
+            </ng-container>
+
+            <!-- Non-Amazon Location ID -->
+            <div *ngIf="!connectingMarketplace()?.id?.startsWith('amazon')">
+                <label class="block text-sm font-medium mb-1">Location / Warehouse ID</label>
+                <input [(ngModel)]="formLocationId" type="text" placeholder="e.g. LOC123 (Optional)"
+                    class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-primary font-mono text-sm">
+                <p class="text-xs text-muted-foreground mt-1">Required for inventory sync (Flipkart)</p>
+            </div>
+
+            <div class="p-3 bg-info/10 border border-info/20 rounded-lg">
+                <div class="flex gap-2">
+                    <lucide-icon name="info" class="w-4 h-4 text-info flex-shrink-0 mt-0.5"></lucide-icon>
+                    <p class="text-xs text-info">
+                        Get your API credentials from {{ connectingMarketplace()?.name }} Seller Hub → Settings → API
+                        Access
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="p-6 border-t border-border flex justify-end gap-2">
+            <button (click)="connectDialogOpen.set(false)" [disabled]="connecting()"
+                class="px-4 py-2 border border-border rounded-lg hover:bg-accent disabled:opacity-50">
+                Cancel
+            </button>
+            <button (click)="connectMarketplace()" [disabled]="connecting()"
+                class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:shadow-md disabled:opacity-50 flex items-center gap-2">
+                <lucide-icon *ngIf="connecting()" name="loader-2" class="w-4 h-4 animate-spin"></lucide-icon>
+                {{ connecting() ? 'Connecting...' : 'Connect' }}
+            </button>
+        </div>
+    </div>
+</div>

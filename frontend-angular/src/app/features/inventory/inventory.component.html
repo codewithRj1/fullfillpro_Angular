@@ -1,0 +1,128 @@
+<div class="space-y-6 animate-fade-in">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-display font-bold">Inventory</h1>
+            <p class="text-muted-foreground">Track and manage stock across warehouses</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <button
+                class="btn-futuristic px-4 py-2 bg-card border border-border rounded-lg text-sm font-medium hover:bg-accent/50 flex items-center gap-2">
+                <lucide-icon name="upload" class="w-4 h-4"></lucide-icon> Bulk Upload
+            </button>
+            <button
+                class="btn-futuristic px-4 py-2 bg-card border border-border rounded-lg text-sm font-medium hover:bg-accent/50 flex items-center gap-2">
+                <lucide-icon name="arrow-right-left" class="w-4 h-4"></lucide-icon> Transfer
+            </button>
+            <button
+                class="btn-futuristic px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium shadow-glow-sm hover:shadow-glow-md flex items-center gap-2">
+                <lucide-icon name="plus" class="w-4 h-4"></lucide-icon> Adjust Stock
+            </button>
+        </div>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <div class="stat-card bg-card border border-border/50 p-4 rounded-xl">
+            <p class="text-sm text-muted-foreground">Total Available</p>
+            <p class="text-2xl font-bold font-mono mt-1">{{ totalAvailable() | number }}</p>
+        </div>
+        <div class="stat-card bg-card border border-border/50 p-4 rounded-xl">
+            <p class="text-sm text-muted-foreground">Total Reserved</p>
+            <p class="text-2xl font-bold font-mono mt-1">{{ totalReserved() | number }}</p>
+        </div>
+        <div class="stat-card bg-card border border-border/50 border-l-4 border-l-warning p-4 rounded-xl">
+            <p class="text-sm text-muted-foreground">Low Stock Items</p>
+            <p class="text-2xl font-bold font-mono mt-1 text-warning">{{ lowStockCount() }}</p>
+        </div>
+        <div class="stat-card bg-card border border-border/50 border-l-4 border-l-destructive p-4 rounded-xl">
+            <p class="text-sm text-muted-foreground">Out of Stock</p>
+            <p class="text-2xl font-bold font-mono mt-1 text-destructive">{{ outOfStockCount() }}</p>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="flex flex-col sm:flex-row gap-4 p-4 bg-card rounded-xl border border-border/50">
+        <div class="relative flex-1">
+            <lucide-icon name="search"
+                class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></lucide-icon>
+            <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
+                placeholder="Search by product name or SKU..."
+                class="w-full pl-10 pr-4 py-2 bg-muted/30 border border-border/50 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary/50 transition-all">
+        </div>
+        <select [ngModel]="warehouseFilter()" (ngModelChange)="warehouseFilter.set($event)"
+            class="w-[200px] bg-card border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
+            <option value="all">All Warehouses</option>
+            <option *ngFor="let wh of warehouses()" [value]="wh.id">{{ wh.name }}</option>
+        </select>
+        <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)"
+            class="w-[160px] bg-card border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
+            <option value="all">All Status</option>
+            <option value="in_stock">In Stock</option>
+            <option value="low_stock">Low Stock</option>
+            <option value="out_of_stock">Out of Stock</option>
+        </select>
+        <button
+            class="p-2 border border-border rounded-lg hover:bg-accent/50 text-muted-foreground hover:text-foreground">
+            <lucide-icon name="download" class="w-4 h-4"></lucide-icon>
+        </button>
+    </div>
+
+    <!-- Inventory Table -->
+    <div class="overflow-x-auto rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm min-h-[400px]">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="border-b border-border/50 bg-muted/20">
+                    <th class="px-4 py-3 text-left font-medium text-muted-foreground">Product</th>
+                    <th class="px-4 py-3 text-left font-medium text-muted-foreground">Warehouse</th>
+                    <th class="px-4 py-3 text-right font-medium text-muted-foreground">Available</th>
+                    <th class="px-4 py-3 text-right font-medium text-muted-foreground">Reserved</th>
+                    <th class="px-4 py-3 text-right font-medium text-muted-foreground">Reorder Lvl</th>
+                    <th class="px-4 py-3 text-left font-medium text-muted-foreground pl-8">Status</th>
+                    <th class="px-4 py-3 text-right font-medium text-muted-foreground"></th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-border/30">
+                <tr *ngFor="let item of filteredInventory()"
+                    class="group hover:bg-primary/5 transition-colors cursor-pointer" (click)="handleAdjustStock(item)">
+                    <td class="px-4 py-3">
+                        <div class="space-y-0.5">
+                            <p class="font-medium truncate max-w-[200px]">{{ item.product.name }}</p>
+                            <p class="text-xs text-muted-foreground">{{ item.product.sku }}</p>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 font-medium text-muted-foreground">
+                        {{ item.warehouseName }}
+                    </td>
+                    <td class="px-4 py-3 text-right font-bold">
+                        {{ item.available }}
+                    </td>
+                    <td class="px-4 py-3 text-right text-muted-foreground">
+                        {{ item.reserved }}
+                    </td>
+                    <td class="px-4 py-3 text-right text-muted-foreground">
+                        {{ item.reorderLevel }}
+                    </td>
+                    <td class="px-4 py-3 pl-8">
+                        <span *ngIf="item.available === 0"
+                            class="px-2 py-1 rounded text-xs font-medium bg-destructive/10 text-destructive">Out of
+                            Stock</span>
+                        <span *ngIf="item.available > 0 && item.available <= item.reorderLevel"
+                            class="px-2 py-1 rounded text-xs font-medium bg-warning/10 text-warning">Low Stock</span>
+                        <span *ngIf="item.available > item.reorderLevel"
+                            class="px-2 py-1 rounded text-xs font-medium bg-success/10 text-success">In Stock</span>
+                    </td>
+                    <td class="px-4 py-3 text-right">
+                        <button
+                            class="text-xs border border-border rounded px-2 py-1 hover:bg-accent hover:text-foreground">Adjust</button>
+                    </td>
+                </tr>
+                <tr *ngIf="filteredInventory().length === 0">
+                    <td colspan="7" class="px-4 py-8 text-center text-muted-foreground">
+                        No inventory records found.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

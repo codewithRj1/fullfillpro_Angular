@@ -1,0 +1,313 @@
+<div class="space-y-6 animate-fade-in">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-display font-bold">Warehouses</h1>
+            <p class="text-muted-foreground">Manage warehouses and receive purchase orders</p>
+        </div>
+        <button (click)="openAddDialog()"
+            class="btn-futuristic px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium shadow-glow-sm hover:shadow-glow-md flex items-center gap-2">
+            <lucide-icon name="plus" class="w-4 h-4"></lucide-icon> Add Warehouse
+        </button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="bg-muted/50 p-1 rounded-lg inline-flex">
+        <button (click)="activeTab.set('warehouses')"
+            [class]="'px-4 py-2 rounded-md text-sm font-medium transition-all flex items-center gap-2 ' + 
+                     (activeTab() === 'warehouses' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:bg-card/50')">
+            <lucide-icon name="building-2" class="w-4 h-4"></lucide-icon> Warehouses
+        </button>
+        <button (click)="activeTab.set('receiving')"
+            [class]="'px-4 py-2 rounded-md text-sm font-medium transition-all flex items-center gap-2 ' + 
+                     (activeTab() === 'receiving' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:bg-card/50')">
+            <lucide-icon name="truck" class="w-4 h-4"></lucide-icon> PO Receiving
+            <span *ngIf="pendingPOs().length > 0"
+                class="ml-1 px-1.5 py-0.5 text-xs rounded-full bg-primary text-primary-foreground">
+                {{ pendingPOs().length }}
+            </span>
+        </button>
+    </div>
+
+    <!-- Warehouses Tab -->
+    <div *ngIf="activeTab() === 'warehouses'" class="mt-4 space-y-4">
+        <!-- Search -->
+        <div class="flex gap-4 p-4 bg-card rounded-lg border border-border">
+            <div class="relative flex-1">
+                <lucide-icon name="search"
+                    class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></lucide-icon>
+                <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
+                    placeholder="Search warehouses..."
+                    class="w-full pl-10 pr-4 py-2 bg-muted/30 border border-border/50 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary/50 transition-all">
+            </div>
+        </div>
+
+        <!-- Warehouses Table -->
+        <div class="overflow-x-auto rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-border/50 bg-muted/20">
+                        <th class="px-4 py-3 text-left font-medium text-muted-foreground">Warehouse</th>
+                        <th class="px-4 py-3 text-left font-medium text-muted-foreground">Location</th>
+                        <th class="px-4 py-3 text-left font-medium text-muted-foreground">PIN Code</th>
+                        <th class="px-4 py-3 text-left font-medium text-muted-foreground">Contact</th>
+                        <th class="px-4 py-3 text-left font-medium text-muted-foreground">Status</th>
+                        <th class="px-4 py-3 text-right font-medium text-muted-foreground"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border/30">
+                    <tr *ngFor="let wh of filteredWarehouses()"
+                        class="group hover:bg-primary/5 transition-colors cursor-pointer" (click)="openEditDialog(wh)">
+                        <td class="px-4 py-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                                    <lucide-icon name="building-2" class="w-5 h-5 text-primary"></lucide-icon>
+                                </div>
+                                <div>
+                                    <p class="font-semibold">{{ wh.name }}</p>
+                                    <span *ngIf="wh.isDefault"
+                                        class="inline-block text-xs px-2 py-0.5 rounded bg-info/10 text-info mt-1">Default</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-muted-foreground">📍</span>
+                                <span>{{ wh.city }}, {{ wh.state }}</span>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3">
+                            <span class="font-mono">{{ wh.pinCode }}</span>
+                        </td>
+                        <td class="px-4 py-3">
+                            <p class="font-medium">{{ wh.contactPerson }}</p>
+                            <p class="text-sm text-muted-foreground">{{ wh.phone }}</p>
+                        </td>
+                        <td class="px-4 py-3">
+                            <span [class]="'inline-block px-2 py-1 rounded text-xs font-medium ' + 
+                             (wh.isActive ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground')">
+                                {{ wh.isActive ? 'Active' : 'Inactive' }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-right">
+                            <button (click)="openEditDialog(wh); $event.stopPropagation()"
+                                class="text-xs px-3 py-1 border border-border rounded hover:bg-accent hover:text-foreground">
+                                <lucide-icon name="edit" class="w-4 h-4 mr-1"></lucide-icon> Edit
+                            </button>
+                        </td>
+                    </tr>
+                    <tr *ngIf="filteredWarehouses().length === 0">
+                        <td colspan="6" class="px-4 py-8 text-center text-muted-foreground">
+                            No warehouses found.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- PO Receiving Tab -->
+    <div *ngIf="activeTab() === 'receiving'" class="mt-4 space-y-4">
+        <div class="p-4 bg-muted/50 rounded-lg">
+            <p class="text-sm text-muted-foreground">
+                Select a Purchase Order to receive items into a warehouse. You can specify which warehouse to store the
+                products.
+            </p>
+        </div>
+
+        <div *ngIf="pendingPOs().length === 0" class="text-center py-12 text-muted-foreground">
+            <lucide-icon name="package" class="w-12 h-12 mx-auto opacity-50"></lucide-icon>
+            <p class="mt-4">No pending purchase orders to receive</p>
+        </div>
+
+        <div *ngIf="pendingPOs().length > 0" class="overflow-x-auto rounded-xl border border-border/50 bg-card/50">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-border/50 bg-muted/20">
+                        <th class="px-4 py-3 text-left font-medium text-muted-foreground">PO Number</th>
+                        <th class="px-4 py-3 text-left font-medium text-muted-foreground">Vendor</th>
+                        <th class="px-4 py-3 text-left font-medium text-muted-foreground">Items</th>
+                        <th class="px-4 py-3 text-left font-medium text-muted-foreground">Expected Date</th>
+                        <th class="px-4 py-3 text-left font-medium text-muted-foreground">Status</th>
+                        <th class="px-4 py-3 text-right font-medium text-muted-foreground"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border/30">
+                    <tr *ngFor="let po of pendingPOs()"
+                        class="group hover:bg-primary/5 transition-colors cursor-pointer"
+                        (click)="openReceivingDialog(po)">
+                        <td class="px-4 py-3 font-semibold">{{ po.poNo }}</td>
+                        <td class="px-4 py-3">{{ po.vendor.name }}</td>
+                        <td class="px-4 py-3">{{ po.totalItems }} items ({{ po.totalQuantity }} qty)</td>
+                        <td class="px-4 py-3">{{ po.expectedDeliveryDate | date:'dd MMM yyyy' }}</td>
+                        <td class="px-4 py-3">
+                            <span [class]="'inline-block px-2 py-1 rounded text-xs font-medium ' + 
+                             (po.status === 'sent' ? 'bg-info/10 text-info' : 'bg-warning/10 text-warning')">
+                                {{ po.status.replace('_', ' ').toUpperCase() }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-right">
+                            <button (click)="openReceivingDialog(po); $event.stopPropagation()"
+                                class="px-3 py-1 bg-primary text-primary-foreground rounded text-xs hover:shadow-md">
+                                Receive
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add/Edit Warehouse Dialog -->
+    <div *ngIf="dialogOpen()" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+        (click)="dialogOpen.set(false)">
+        <div class="bg-card border border-border rounded-xl max-w-lg w-full mx-4 shadow-2xl"
+            (click)="$event.stopPropagation()">
+            <div class="border-b border-border p-4">
+                <h2 class="text-xl font-semibold">{{ editingWarehouse() ? 'Edit Warehouse' : 'Add New Warehouse' }}</h2>
+            </div>
+
+            <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Warehouse Name *</label>
+                    <input type="text" [ngModel]="formName()" (ngModelChange)="formName.set($event)"
+                        placeholder="e.g., Mumbai Main Warehouse"
+                        class="w-full px-3 py-2 bg-muted/30 border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-primary">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Address *</label>
+                    <textarea [ngModel]="formAddress()" (ngModelChange)="formAddress.set($event)"
+                        placeholder="Full address" rows="2"
+                        class="w-full px-3 py-2 bg-muted/30 border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-primary"></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">City *</label>
+                        <input type="text" [ngModel]="formCity()" (ngModelChange)="formCity.set($event)"
+                            placeholder="City"
+                            class="w-full px-3 py-2 bg-muted/30 border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-primary">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">State *</label>
+                        <input type="text" [ngModel]="formState()" (ngModelChange)="formState.set($event)"
+                            placeholder="State"
+                            class="w-full px-3 py-2 bg-muted/30 border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-primary">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">PIN Code *</label>
+                    <input type="text" [ngModel]="formPinCode()" (ngModelChange)="formPinCode.set($event)"
+                        placeholder="6-digit PIN"
+                        class="w-full px-3 py-2 bg-muted/30 border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-primary">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Contact Person</label>
+                        <input type="text" [ngModel]="formContactPerson()"
+                            (ngModelChange)="formContactPerson.set($event)" placeholder="Name"
+                            class="w-full px-3 py-2 bg-muted/30 border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-primary">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Phone</label>
+                        <input type="text" [ngModel]="formPhone()" (ngModelChange)="formPhone.set($event)"
+                            placeholder="Phone number"
+                            class="w-full px-3 py-2 bg-muted/30 border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-primary">
+                    </div>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                    <div>
+                        <label class="block text-sm font-medium">Default Warehouse</label>
+                        <p class="text-xs text-muted-foreground">Use as default for new orders</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" [ngModel]="formIsDefault()" (ngModelChange)="formIsDefault.set($event)"
+                            class="sr-only peer">
+                        <div
+                            class="w-11 h-6 bg-muted peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
+                        </div>
+                    </label>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                    <div>
+                        <label class="block text-sm font-medium">Active Status</label>
+                        <p class="text-xs text-muted-foreground">Enable this warehouse</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" [ngModel]="formIsActive()" (ngModelChange)="formIsActive.set($event)"
+                            class="sr-only peer">
+                        <div
+                            class="w-11 h-6 bg-muted peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="border-t border-border p-4 flex justify-end gap-2">
+                <button (click)="dialogOpen.set(false)"
+                    class="px-4 py-2 border border-border rounded-lg hover:bg-accent text-sm font-medium">
+                    Cancel
+                </button>
+                <button (click)="handleSave()"
+                    class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:shadow-md text-sm font-medium">
+                    {{ editingWarehouse() ? 'Update' : 'Add Warehouse' }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Receiving Dialog -->
+    <div *ngIf="receivingDialogOpen()" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+        (click)="receivingDialogOpen.set(false)">
+        <div class="bg-card border border-border rounded-xl max-w-2xl w-full mx-4 shadow-2xl"
+            (click)="$event.stopPropagation()">
+            <div class="border-b border-border p-4">
+                <h2 class="text-xl font-semibold">Receive PO: {{ selectedPO()?.poNo }}</h2>
+            </div>
+
+            <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Receive at Warehouse *</label>
+                    <select [ngModel]="receivingWarehouse()" (ngModelChange)="receivingWarehouse.set($event)"
+                        class="w-full px-3 py-2 bg-muted/30 border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-primary">
+                        <option value="">Select warehouse</option>
+                        <option *ngFor="let wh of activeWarehouses()" [value]="wh.id">
+                            {{ wh.name }} - {{ wh.city }}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium">Items to Receive</label>
+                    <div *ngFor="let item of selectedPO()?.items"
+                        class="flex items-center gap-4 p-3 bg-muted/50 rounded-lg">
+                        <div class="flex-1">
+                            <p class="font-medium">{{ item.productName }}</p>
+                            <p class="text-sm text-muted-foreground">SKU: {{ item.sku }}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm text-muted-foreground">Ordered: {{ item.orderedQty }}</p>
+                            <p class="text-sm text-muted-foreground">Already Received: {{ item.receivedQty }}</p>
+                        </div>
+                        <div class="w-24">
+                            <input type="number" [value]="receivedQuantities()[item.id] || 0"
+                                (input)="setReceivedQuantity(item.id, +$any($event.target).value)"
+                                [max]="item.orderedQty - item.receivedQty" min="0"
+                                class="w-full px-2 py-1 bg-muted/30 border border-border rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-border p-4 flex justify-end gap-2">
+                <button (click)="receivingDialogOpen.set(false)"
+                    class="px-4 py-2 border border-border rounded-lg hover:bg-accent text-sm font-medium">
+                    Cancel
+                </button>
+                <button (click)="handleReceive()"
+                    class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:shadow-md text-sm font-medium">
+                    Confirm Receipt
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

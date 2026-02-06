@@ -1,0 +1,148 @@
+<div class="space-y-6 page-enter">
+    <!-- Header with futuristic styling -->
+    <div class="flex flex-col gap-2 relative">
+        <div class="flex items-center gap-4">
+            <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary via-info to-primary flex items-center justify-center shadow-glow-md relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-t from-transparent to-white/20"></div>
+                <lucide-icon name="bot" class="w-7 h-7 text-white relative z-10"></lucide-icon>
+                <div
+                    class="absolute -bottom-1 -right-1 w-4 h-4 bg-success rounded-full border-2 border-background animate-pulse">
+                </div>
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h1 class="text-3xl font-display font-bold tracking-wide">
+                        COMMAND <span class="text-gradient">CENTER</span>
+                    </h1>
+                    <lucide-icon name="cpu" class="w-5 h-5 text-primary animate-pulse"></lucide-icon>
+                </div>
+                <p class="text-muted-foreground flex items-center gap-2">
+                    <lucide-icon name="sparkles" class="w-4 h-4 text-primary"></lucide-icon>
+                    AI-Powered Analytics & Real-Time Insights
+                </p>
+            </div>
+        </div>
+
+        <!-- Cyber decorative line with animation -->
+        <div class="relative mt-4 h-px">
+            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
+            <div class="absolute left-0 top-0 w-20 h-px bg-gradient-to-r from-primary to-transparent animate-pulse">
+            </div>
+            <div class="absolute right-0 top-0 w-20 h-px bg-gradient-to-l from-info to-transparent animate-pulse"></div>
+        </div>
+    </div>
+
+    <!-- Main Tabs (Custom Implementation replicating Radix Tabs) -->
+    <div class="space-y-6">
+        <div class="glass-card border border-primary/20 h-auto flex flex-wrap gap-1.5 p-2 rounded-2xl">
+            <button *ngFor="let tab of tabs" (click)="setActiveTab(tab.id)" [class]="'relative gap-2 px-5 py-3 rounded-xl font-medium transition-all duration-500 group overflow-hidden flex items-center ' + 
+        (activeTab() === tab.id 
+          ? 'bg-gradient-to-r from-primary to-info text-primary-foreground shadow-glow-sm' 
+          : 'hover:bg-accent/50 text-muted-foreground hover:text-foreground')">
+                <div
+                    class="absolute inset-0 bg-gradient-to-r from-primary/10 to-info/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                </div>
+                <lucide-icon [name]="tab.icon" class="w-4 h-4 relative z-10"></lucide-icon>
+                <span class="hidden sm:inline relative z-10">{{ tab.label }}</span>
+            </button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content-enter">
+            <ng-container [ngSwitch]="activeTab()">
+
+                <!-- Business Overview Tab -->
+                <div *ngSwitchCase="'overview'" class="space-y-8">
+                    <!-- Header Actions (Moved inside tab for context) -->
+                    <div class="flex items-center justify-between animate-slide-in">
+                        <h3 class="font-display font-semibold text-xl">Overview</h3>
+                        <div class="flex gap-3">
+                            <button
+                                class="btn-futuristic px-4 py-2 bg-card border border-border rounded-lg text-sm font-medium hover:bg-accent/50 flex items-center gap-2">
+                                <lucide-icon name="filter" class="w-4 h-4"></lucide-icon> Filter
+                            </button>
+                            <button
+                                class="btn-futuristic px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium shadow-glow-sm hover:shadow-glow-md flex items-center gap-2">
+                                <lucide-icon name="plus" class="w-4 h-4"></lucide-icon> New Order
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4 animate-fade-in"
+                        style="animation-delay: 0.1s;">
+                        <app-stat-card title="Total Revenue" value="$45,231.89" [trend]="20.1" icon="dollar-sign"
+                            iconClass="text-emerald-500 bg-emerald-500/10">
+                        </app-stat-card>
+                        <app-stat-card title="Active Orders" value="+2350" [trend]="180.1" icon="shopping-cart"
+                            iconClass="text-blue-500 bg-blue-500/10">
+                        </app-stat-card>
+                        <app-stat-card title="Products" value="12,234" [trend]="19" icon="package"
+                            iconClass="text-purple-500 bg-purple-500/10">
+                        </app-stat-card>
+                        <app-stat-card title="Active Now" value="+573" [trend]="201" icon="activity"
+                            iconClass="text-pink-500 bg-pink-500/10">
+                        </app-stat-card>
+                    </div>
+
+                    <!-- Recent Activity / Charts Placeholder -->
+                    <div class="grid gap-6 md:grid-cols-7 animate-fade-in" style="animation-delay: 0.2s;">
+                        <!-- Main Chart -->
+                        <div class="col-span-4 glass-card rounded-xl p-6">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 class="font-display font-semibold text-lg">Revenue Overview</h3>
+                                <select
+                                    class="bg-background border border-border text-sm rounded-lg px-3 py-1 focus:ring-primary focus:border-primary">
+                                    <option>Oct 2023 - Mar 2024</option>
+                                    <option>Last 30 Days</option>
+                                </select>
+                            </div>
+                            <div
+                                class="h-[300px] w-full flex items-center justify-center border border-dashed border-border/50 rounded-lg bg-background/30">
+                                <p class="text-muted-foreground flex items-center gap-2">
+                                    <lucide-icon name="bar-chart-3" class="w-5 h-5"></lucide-icon>
+                                    Chart Component Placeholder
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Recent Sales -->
+                        <div class="col-span-3 glass-card rounded-xl p-6">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 class="font-display font-semibold text-lg">Recent Sales</h3>
+                                <a routerLink="/orders"
+                                    class="text-sm text-primary hover:text-primary/80 hover:underline">View All</a>
+                            </div>
+                            <div class="space-y-6">
+                                <div *ngFor="let i of [1,2,3,4,5]"
+                                    class="flex items-center justify-between group cursor-pointer p-2 rounded-lg hover:bg-accent/30 transition-colors">
+                                    <div class="flex items-center gap-4">
+                                        <div
+                                            class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                                            OM
+                                        </div>
+                                        <div>
+                                            <p
+                                                class="text-sm font-medium leading-none group-hover:text-primary transition-colors">
+                                                Olivia Martin</p>
+                                            <p class="text-xs text-muted-foreground mt-1">olivia.martin&#64;email.com
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="font-mono font-medium">+$1,999.00</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div *ngSwitchDefault class="p-10 text-center text-muted-foreground glass-card rounded-xl">
+                    <lucide-icon name="construction" class="w-10 h-10 mx-auto mb-2 opacity-50"></lucide-icon>
+                    <p>This module is under construction.</p>
+                </div>
+
+            </ng-container>
+        </div>
+    </div>
+</div>

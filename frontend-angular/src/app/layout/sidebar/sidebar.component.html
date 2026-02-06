@@ -1,0 +1,75 @@
+<aside
+    [class]="'h-screen bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-300 relative ' + (collapsed() ? 'w-16' : 'w-64')">
+    <!-- Futuristic scan line effect -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div
+            class="absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent animate-scan-line">
+        </div>
+    </div>
+
+    <!-- Logo -->
+    <div class="h-16 flex items-center justify-between px-4 border-b border-sidebar-border relative">
+        <div *ngIf="!collapsed()" class="flex items-center gap-3 animate-fade-in">
+            <div
+                class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-info flex items-center justify-center shadow-glow-sm relative overflow-hidden">
+                <!-- <lucide-icon name="zap" class="w-5 h-5 text-white relative z-10"></lucide-icon> -->
+                <div class="absolute inset-0 bg-white/20 animate-pulse"></div>
+            </div>
+            <div>
+                <span class="font-display font-bold text-sidebar-foreground tracking-wider text-lg">
+                    FULFILL<span class="text-primary">PRO</span>
+                </span>
+                <span class="block text-[10px] text-sidebar-foreground/50 tracking-widest">AI POWERED</span>
+            </div>
+        </div>
+
+        <!--
+        <div *ngIf="collapsed()"
+            class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-info flex items-center justify-center shadow-glow-sm mx-auto">
+            <lucide-icon name="zap" class="w-5 h-5 text-white"></lucide-icon>
+        </div>
+    -->
+
+        <button (click)="toggleCollapse()"
+            [class]="'text-sidebar-foreground hover:bg-sidebar-accent h-8 w-8 rounded-full flex items-center justify-center transition-all absolute top-1/2 -translate-y-1/2 ' + (collapsed() ? '-right-3 bg-sidebar border border-sidebar-border shadow-lg z-10' : 'right-4')">
+            <lucide-icon [name]="collapsed() ? 'chevron-right' : 'chevron-left'" class="w-4 h-4"></lucide-icon>
+        </button>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="flex-1 py-4 overflow-y-auto custom-scrollbar px-2">
+        <ul class="space-y-1">
+            <li *ngFor="let item of navItems">
+                <a [routerLink]="item.path"
+                    routerLinkActive="bg-gradient-to-r from-primary/20 to-primary/10 text-primary border border-primary/20 font-semibold"
+                    [routerLinkActiveOptions]="{exact: item.exact}" [title]="collapsed() ? item.label : ''"
+                    #rla="routerLinkActive"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 relative group text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent">
+                    <!-- Active indicator -->
+                    <div *ngIf="rla.isActive"
+                        class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full shadow-glow-sm">
+                    </div>
+
+                    <lucide-icon [name]="item.icon"
+                        [class]="'w-5 h-5 flex-shrink-0 transition-all ' + (rla.isActive ? 'text-primary' : '')"></lucide-icon>
+
+                    <span *ngIf="!collapsed()" class="tracking-wide animate-fade-in">{{ item.label }}</span>
+
+                    <!-- Hover glow effect -->
+                    <div
+                        class="absolute inset-0 rounded-xl bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                    </div>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Footer -->
+    <div *ngIf="!collapsed()" class="p-4 border-t border-sidebar-border animate-fade-in">
+        <div class="flex items-center gap-2 text-xs text-sidebar-foreground/40">
+            <div class="w-2 h-2 rounded-full bg-success animate-pulse"></div>
+            <span class="font-mono">v2.0.0</span>
+            <span class="text-primary/60">• ONLINE</span>
+        </div>
+    </div>
+</aside>

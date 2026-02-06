@@ -1,0 +1,68 @@
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold">Purchase Orders</h1>
+            <p class="text-muted-foreground">Manage supplier orders and receiving</p>
+        </div>
+        <div class="flex gap-2"><button
+                class="px-4 py-2 border border-border rounded-lg hover:bg-accent text-sm font-medium flex items-center gap-2"><lucide-icon
+                    name="download" class="w-4 h-4"></lucide-icon> Export</button><button
+                class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:shadow-md text-sm font-medium flex items-center gap-2"><lucide-icon
+                    name="plus" class="w-4 h-4"></lucide-icon> Create PO</button></div>
+    </div>
+    <div class="flex flex-col sm:flex-row gap-4 p-4 bg-card rounded-lg border border-border">
+        <div class="relative flex-1"><lucide-icon name="search"
+                class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></lucide-icon><input
+                type="text" [(ngModel)]="searchQuery" placeholder="Search by PO number or vendor..."
+                class="w-full pl-10 pr-4 py-2 bg-muted/30 border border-border/50 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary">
+        </div><select [(ngModel)]="vendorFilter" class="px-3 py-2 border border-border rounded-lg bg-background">
+            <option value="all">All Vendors</option>
+        </select><select [(ngModel)]="statusFilter" class="px-3 py-2 border border-border rounded-lg bg-background">
+            <option value="all">All Status</option>
+            <option value="draft">Draft</option>
+            <option value="sent">Sent</option>
+            <option value="partially_received">Partial</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+        </select>
+    </div>
+    <div class="overflow-x-auto rounded-xl border border-border/50 bg-card/50">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="border-b border-border/50 bg-muted/20">
+                    <th class="px-4 py-3 text-left font-medium text-muted-foreground">PO Number</th>
+                    <th class="px-4 py-3 text-left font-medium text-muted-foreground">Vendor</th>
+                    <th class="px-4 py-3 text-left font-medium text-muted-foreground">Created</th>
+                    <th class="px-4 py-3 text-left font-medium text-muted-foreground">Expected Delivery</th>
+                    <th class="px-4 py-3 text-left font-medium text-muted-foreground">Status</th>
+                    <th class="px-4 py-3 text-right font-medium text-muted-foreground">Items</th>
+                    <th class="px-4 py-3 text-right font-medium text-muted-foreground">Quantity</th>
+                    <th class="px-4 py-3 text-right font-medium text-muted-foreground">Total Value</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-border/30">
+                <tr *ngFor="let po of filteredPOs()" class="hover:bg-primary/5 transition-colors cursor-pointer">
+                    <td class="px-4 py-3 font-semibold">{{ po.poNo }}</td>
+                    <td class="px-4 py-3">
+                        <div>
+                            <p class="font-medium">{{ po.vendor.name }}</p>
+                            <p class="text-sm text-muted-foreground">{{ po.vendor.code }}</p>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">{{ po.createdDate | date:'dd MMM yyyy' }}</td>
+                    <td class="px-4 py-3">{{ po.expectedDeliveryDate | date:'dd MMM yyyy' }}</td>
+                    <td class="px-4 py-3"><span
+                            [class]="'inline-block px-2 py-1 rounded text-xs font-medium ' + getStatusClass(po.status)">{{
+                            getStatusLabel(po.status) }}</span></td>
+                    <td class="px-4 py-3 text-right">{{ po.totalItems }}</td>
+                    <td class="px-4 py-3 text-right">{{ po.totalQuantity }}</td>
+                    <td class="px-4 py-3 text-right font-semibold">₹{{ po.totalValue.toLocaleString() }}</td>
+                </tr>
+                <tr *ngIf="filteredPOs().length === 0">
+                    <td colspan="8" class="px-4 py-8 text-center text-muted-foreground">No purchase orders found.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="text-sm text-muted-foreground">Showing {{ filteredPOs().length }} purchase orders</div>
+</div>

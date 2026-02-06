@@ -1,0 +1,125 @@
+<div class="space-y-6 animate-fade-in">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-display font-bold">Orders</h1>
+            <p class="text-muted-foreground">Manage and fulfill customer orders</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <button
+                class="btn-futuristic px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium shadow-glow-sm hover:shadow-glow-md flex items-center gap-2"
+                (click)="handleCreateOrder()">
+                <lucide-icon name="plus" class="w-4 h-4"></lucide-icon> Create Order
+            </button>
+            <button
+                class="btn-futuristic px-4 py-2 bg-card border border-border rounded-lg text-sm font-medium hover:bg-accent/50 flex items-center gap-2"
+                (click)="syncOrders()">
+                <lucide-icon name="refresh-cw" class="w-4 h-4"></lucide-icon> Sync Orders
+            </button>
+            <button
+                class="btn-futuristic px-4 py-2 bg-card border border-border rounded-lg text-sm font-medium hover:bg-accent/50 flex items-center gap-2">
+                <lucide-icon name="download" class="w-4 h-4"></lucide-icon> Export
+            </button>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex items-center gap-1 overflow-x-auto bg-muted/50 p-1 rounded-lg">
+        <button *ngFor="let tab of statusTabs()" (click)="setTab(tab.value)" [class]="'flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ' + 
+      (activeTab() === tab.value 
+        ? 'bg-card text-foreground shadow-sm' 
+        : 'text-muted-foreground hover:bg-card/50 hover:text-foreground')">
+            {{ tab.label }}
+            <span class="px-1.5 py-0.5 text-xs rounded-full bg-muted border border-border">{{ tab.count }}</span>
+        </button>
+    </div>
+
+    <!-- Filters -->
+    <div class="flex flex-col sm:flex-row gap-4 p-4 bg-card rounded-xl border border-border/50">
+        <div class="relative flex-1">
+            <lucide-icon name="search"
+                class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></lucide-icon>
+            <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
+                placeholder="Search by order no, tracking, customer..."
+                class="w-full pl-10 pr-4 py-2 bg-muted/30 border border-border/50 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary/50 transition-all">
+        </div>
+        <select [ngModel]="marketplaceFilter()" (ngModelChange)="marketplaceFilter.set($event)"
+            class="w-[180px] bg-card border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
+            <option value="all">All Marketplaces</option>
+            <option *ngFor="let mp of marketplaces" [value]="mp">{{ mp | titlecase }}</option>
+        </select>
+    </div>
+
+    <!-- Orders Table -->
+    <div class="overflow-x-auto rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm min-h-[400px]">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="border-b border-border/50 bg-muted/20">
+                    <th class="px-4 py-3 text-left font-medium text-muted-foreground">Order</th>
+                    <th class="px-4 py-3 text-left font-medium text-muted-foreground">Channel</th>
+                    <th class="px-4 py-3 text-left font-medium text-muted-foreground">Date</th>
+                    <th class="px-4 py-3 text-left font-medium text-muted-foreground">Customer</th>
+                    <th class="px-4 py-3 text-left font-medium text-muted-foreground">Status</th>
+                    <th class="px-4 py-3 text-right font-medium text-muted-foreground">Total</th>
+                    <th class="px-4 py-3 text-left font-medium text-muted-foreground">Tracking</th>
+                    <th class="px-4 py-3 text-right font-medium text-muted-foreground">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-border/30">
+                <tr *ngFor="let order of filteredOrders()"
+                    class="group hover:bg-primary/5 transition-colors cursor-pointer">
+                    <td class="px-4 py-3">
+                        <div class="space-y-1">
+                            <p class="font-semibold">{{ order.orderNo }}</p>
+                            <p class="text-xs text-muted-foreground font-mono">{{ order.marketplace | uppercase }}</p>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">
+                        <app-marketplace-badge [marketplace]="order.marketplace"
+                            status="active"></app-marketplace-badge>
+                    </td>
+                    <td class="px-4 py-3 text-muted-foreground">
+                        {{ order.orderDate | date:'dd MMM yyyy HH:mm' }}
+                    </td>
+                    <td class="px-4 py-3">
+                        <p class="font-medium">{{ order.customer.name }}</p>
+                        <p class="text-xs text-muted-foreground truncate max-w-[150px]">{{ order.customer.address }}</p>
+                    </td>
+                    <td class="px-4 py-3">
+                        <app-status-badge [status]="order.status"></app-status-badge>
+                    </td>
+                    <td class="px-4 py-3 text-right font-semibold">
+                        ₹{{ order.total }}
+                    </td>
+                    <td class="px-4 py-3">
+                        <div *ngIf="order.trackingNo" class="text-xs font-mono bg-muted px-2 py-1 rounded">
+                            {{ order.trackingNo }}
+                        </div>
+                        <span *ngIf="!order.trackingNo" class="text-muted-foreground">—</span>
+                    </td>
+                    <td class="px-4 py-3 text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            <button title="Generate Label" (click)="$event.stopPropagation(); generateLabel(order)"
+                                class="p-1.5 hover:bg-muted rounded-md text-muted-foreground hover:text-primary transition-colors">
+                                <lucide-icon name="tag" class="w-4 h-4"></lucide-icon>
+                            </button>
+                            <button title="Dispatch" (click)="$event.stopPropagation(); dispatchOrder(order)"
+                                class="p-1.5 hover:bg-muted rounded-md text-muted-foreground hover:text-primary transition-colors">
+                                <lucide-icon name="truck" class="w-4 h-4"></lucide-icon>
+                            </button>
+                            <button title="Download Invoice" (click)="$event.stopPropagation(); downloadInvoice(order)"
+                                class="p-1.5 hover:bg-muted rounded-md text-muted-foreground hover:text-primary transition-colors">
+                                <lucide-icon name="file-text" class="w-4 h-4"></lucide-icon>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr *ngIf="filteredOrders().length === 0">
+                    <td colspan="7" class="px-4 py-8 text-center text-muted-foreground">
+                        No orders found matching your criteria.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

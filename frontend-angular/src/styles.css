@@ -1,0 +1,529 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 220 20% 97%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 14% 92%;
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 220 14% 94%;
+    --muted-foreground: 220 9% 46%;
+
+    --accent: 217 91% 95%;
+    --accent-foreground: 217 91% 40%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --info: 199 89% 48%;
+    --info-foreground: 0 0% 100%;
+
+    --border: 220 13% 89%;
+    --input: 220 13% 89%;
+    --ring: 217 91% 60%;
+
+    --radius: 0.75rem;
+
+    /* Futuristic accent colors */
+    --neon-blue: 217 91% 60%;
+    --neon-cyan: 180 100% 50%;
+    --neon-purple: 270 91% 65%;
+    --neon-pink: 330 100% 65%;
+    --neon-green: 142 100% 50%;
+
+    /* Marketplace colors */
+    --amazon: 33 100% 50%;
+    --flipkart: 45 100% 51%;
+    --meesho: 340 82% 52%;
+    --ajio: 0 0% 15%;
+    --myntra: 340 82% 52%;
+    --tatacliq: 231 48% 48%;
+    --jiomart: 210 100% 45%;
+
+    /* Chart colors */
+    --chart-1: 217 91% 60%;
+    --chart-2: 142 76% 36%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 330 100% 65%;
+    --chart-5: 180 100% 50%;
+
+    --sidebar-background: 222 47% 11%;
+    --sidebar-foreground: 220 14% 90%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 222 47% 18%;
+    --sidebar-accent-foreground: 220 14% 96%;
+    --sidebar-border: 222 47% 18%;
+    --sidebar-ring: 217 91% 60%;
+  }
+
+  .dark {
+    --background: 222 47% 6%;
+    --foreground: 220 20% 95%;
+
+    --card: 222 47% 9%;
+    --card-foreground: 220 20% 95%;
+
+    --popover: 222 47% 9%;
+    --popover-foreground: 220 20% 95%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 222 47% 14%;
+    --secondary-foreground: 220 20% 95%;
+
+    --muted: 222 47% 12%;
+    --muted-foreground: 220 9% 55%;
+
+    --accent: 222 47% 14%;
+    --accent-foreground: 217 91% 70%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 222 47% 15%;
+    --input: 222 47% 15%;
+    --ring: 217 91% 60%;
+
+    --sidebar-background: 222 47% 5%;
+    --sidebar-foreground: 220 14% 90%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 222 47% 10%;
+    --sidebar-accent-foreground: 220 14% 96%;
+    --sidebar-border: 222 47% 10%;
+    --sidebar-ring: 217 91% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  /* Futuristic font for headings */
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: 'Orbitron', 'Inter', sans-serif;
+    letter-spacing: 0.02em;
+  }
+
+  /* Mono font for data/numbers */
+  .font-mono,
+  code {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Custom scrollbar - Futuristic */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-background;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-primary/40 rounded-full;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary/60;
+  }
+}
+
+@layer components {
+
+  /* Futuristic Glass Card */
+  .glass-card {
+    @apply bg-card/80 backdrop-blur-xl border border-primary/10 shadow-lg;
+    background: linear-gradient(135deg,
+        hsl(var(--card) / 0.9) 0%,
+        hsl(var(--card) / 0.7) 100%);
+  }
+
+  .dark .glass-card {
+    box-shadow:
+      0 0 20px hsl(var(--primary) / 0.1),
+      inset 0 1px 0 hsl(var(--primary) / 0.1);
+  }
+
+  /* Neon Glow Effects */
+  .neon-glow {
+    box-shadow:
+      0 0 5px hsl(var(--primary) / 0.5),
+      0 0 20px hsl(var(--primary) / 0.3),
+      0 0 40px hsl(var(--primary) / 0.1);
+  }
+
+  .neon-text {
+    text-shadow:
+      0 0 10px hsl(var(--primary) / 0.8),
+      0 0 20px hsl(var(--primary) / 0.5),
+      0 0 40px hsl(var(--primary) / 0.3);
+  }
+
+  /* Stat Card - Futuristic */
+  .stat-card {
+    @apply bg-card border border-border/50 rounded-xl p-5 relative overflow-hidden transition-all duration-300;
+  }
+
+  .stat-card::before {
+    content: '';
+    @apply absolute inset-0 opacity-0 transition-opacity duration-300;
+    background: linear-gradient(135deg,
+        hsl(var(--primary) / 0.05) 0%,
+        transparent 50%);
+  }
+
+  .stat-card:hover::before {
+    @apply opacity-100;
+  }
+
+  .stat-card:hover {
+    @apply border-primary/30 shadow-lg;
+    box-shadow:
+      0 10px 40px -10px hsl(var(--primary) / 0.2),
+      0 0 0 1px hsl(var(--primary) / 0.1);
+  }
+
+  /* Data Table - Futuristic */
+  .data-table {
+    @apply w-full text-sm;
+  }
+
+  .data-table th {
+    @apply text-left text-xs font-semibold uppercase tracking-widest px-4 py-3 bg-muted/30 border-b border-primary/10 sticky top-0;
+    font-family: 'Orbitron', sans-serif;
+    color: hsl(var(--primary));
+  }
+
+  .data-table td {
+    @apply px-4 py-3 border-b border-border/30;
+  }
+
+  .data-table tr {
+    @apply transition-all duration-200;
+  }
+
+  .data-table tr:hover td {
+    @apply bg-primary/5;
+  }
+
+  /* Marketplace Badge */
+  .marketplace-badge {
+    @apply inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full;
+  }
+
+  /* Status Badges - Futuristic */
+  .status-live {
+    @apply bg-success/15 text-success border border-success/30;
+  }
+
+  .status-not-live {
+    @apply bg-muted text-muted-foreground border border-muted-foreground/20;
+  }
+
+  .status-error {
+    @apply bg-destructive/15 text-destructive border border-destructive/30;
+  }
+
+  /* Filter Chip - Futuristic */
+  .filter-chip {
+    @apply inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-full border border-border bg-card hover:bg-primary/10 hover:border-primary/30 transition-all duration-200 cursor-pointer;
+  }
+
+  .filter-chip.active {
+    @apply bg-primary text-primary-foreground border-primary shadow-lg;
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+  }
+
+  /* Futuristic Button Styles */
+  .btn-futuristic {
+    @apply relative overflow-hidden transition-all duration-300;
+  }
+
+  .btn-futuristic::before {
+    content: '';
+    @apply absolute inset-0 opacity-0 transition-opacity duration-300;
+    background: linear-gradient(90deg,
+        transparent,
+        hsl(var(--primary-foreground) / 0.2),
+        transparent);
+    animation: shimmer 2s infinite;
+  }
+
+  .btn-futuristic:hover::before {
+    @apply opacity-100;
+  }
+
+  /* Grid Pattern Background */
+  .grid-pattern {
+    background-image:
+      linear-gradient(hsl(var(--primary) / 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--primary) / 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+  }
+
+  /* Cyber Lines */
+  .cyber-line {
+    @apply h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent;
+  }
+
+  /* AI Pulse Animation */
+  .ai-pulse {
+    animation: aiPulse 2s ease-in-out infinite;
+  }
+
+  /* Holographic Effect */
+  .holographic {
+    background: linear-gradient(135deg,
+        hsl(var(--primary) / 0.1) 0%,
+        hsl(180 100% 50% / 0.1) 25%,
+        hsl(270 91% 65% / 0.1) 50%,
+        hsl(330 100% 65% / 0.1) 75%,
+        hsl(var(--primary) / 0.1) 100%);
+    background-size: 400% 400%;
+    animation: holographicShift 8s ease infinite;
+  }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.98);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .animate-slide-in {
+    animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-16px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* Page transition animation */
+  .page-enter {
+    animation: pageEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes pageEnter {
+    0% {
+      opacity: 0;
+      transform: translateY(20px) scale(0.96);
+      filter: blur(8px);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      filter: blur(0);
+    }
+  }
+
+  /* Tab content animation */
+  .tab-content-enter {
+    animation: tabContentEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes tabContentEnter {
+    0% {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* Futuristic card hover */
+  .futuristic-card {
+    @apply relative overflow-hidden transition-all duration-500;
+  }
+
+  .futuristic-card::before {
+    content: '';
+    @apply absolute inset-0 opacity-0 transition-opacity duration-500;
+    background: linear-gradient(135deg,
+        hsl(var(--primary) / 0.1) 0%,
+        transparent 40%,
+        transparent 60%,
+        hsl(var(--info) / 0.1) 100%);
+  }
+
+  .futuristic-card:hover::before {
+    @apply opacity-100;
+  }
+
+  .futuristic-card:hover {
+    @apply shadow-glow-md;
+    transform: translateY(-2px);
+  }
+
+  /* Scan line effect */
+  .scan-effect::after {
+    content: '';
+    @apply absolute inset-0 pointer-events-none;
+    background: linear-gradient(to bottom,
+        transparent 0%,
+        hsl(var(--primary) / 0.03) 50%,
+        transparent 100%);
+    animation: scanLine 4s linear infinite;
+  }
+
+  @keyframes scanLine {
+    0% {
+      transform: translateY(-100%);
+    }
+
+    100% {
+      transform: translateY(100%);
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  @keyframes aiPulse {
+
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    50% {
+      opacity: 0.7;
+      transform: scale(1.05);
+    }
+  }
+
+  @keyframes holographicShift {
+
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  /* Glow utilities */
+  .glow-sm {
+    box-shadow: 0 0 10px hsl(var(--primary) / 0.3);
+  }
+
+  .glow-md {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+  }
+
+  .glow-lg {
+    box-shadow: 0 0 40px hsl(var(--primary) / 0.3);
+  }
+
+  /* Text gradient */
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-info to-primary;
+    background-size: 200% auto;
+    animation: textGradient 3s linear infinite;
+  }
+
+  @keyframes textGradient {
+
+    0%,
+    100% {
+      background-position: 0% center;
+    }
+
+    50% {
+      background-position: 100% center;
+    }
+  }
+
+  /* Border gradient */
+  .border-gradient {
+    border: 1px solid transparent;
+    background:
+      linear-gradient(hsl(var(--card)), hsl(var(--card))) padding-box,
+      linear-gradient(135deg, hsl(var(--primary)), hsl(var(--info)), hsl(var(--primary))) border-box;
+  }
+
+  /* Data glow effect for charts */
+  .data-glow {
+    filter: drop-shadow(0 0 6px hsl(var(--primary) / 0.4));
+  }
+
+  /* Hexagon pattern */
+  .hex-pattern {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%233b82f6' fill-opacity='0.03'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  /* Cyber grid lines */
+  .cyber-grid {
+    background-image:
+      linear-gradient(hsl(var(--primary) / 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--primary) / 0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+}

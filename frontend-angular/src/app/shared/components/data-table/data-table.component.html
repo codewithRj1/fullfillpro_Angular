@@ -1,0 +1,48 @@
+<div class="data-table-container">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-overlay">
+        <div class="spinner"></div>
+        <p class="text-muted-foreground">Loading data...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && data.length === 0" class="empty-state">
+        <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-muted-foreground/50" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+            </svg>
+            <p class="mt-4 text-muted-foreground">{{ emptyMessage }}</p>
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <div *ngIf="!loading && data.length > 0" class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th *ngFor="let column of columns" [style.width]="column.width" [class.sortable]="column.sortable"
+                        (click)="onSort(column)">
+                        <div class="th-content">
+                            <span>{{ column.label }}</span>
+                            <span *ngIf="column.sortable" class="sort-icon">{{ getSortIcon(column) }}</span>
+                        </div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let row of data" (click)="onRowClick(row)" class="table-row">
+                    <td *ngFor="let column of columns">
+                        <ng-container *ngIf="column.type !== 'custom'">
+                            {{ getCellValue(row, column.key) }}
+                        </ng-container>
+                        <ng-container *ngIf="column.type === 'custom'">
+                            <ng-content></ng-content>
+                        </ng-container>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,16 @@
+<div class="flex h-screen bg-background overflow-hidden selection:bg-primary/20">
+    <app-sidebar></app-sidebar>
+
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+        <!-- Background Patterns -->
+        <div class="absolute inset-0 z-0 pointer-events-none opacity-20 cyber-grid"></div>
+
+        <app-header></app-header>
+
+        <main class="flex-1 overflow-auto p-6 md:p-8 relative z-0 custom-scrollbar">
+            <div class="max-w-7xl mx-auto animate-fade-in pb-10">
+                <router-outlet></router-outlet>
+            </div>
+        </main>
+    </div>
+</div>

@@ -1,0 +1,113 @@
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mNG8113: DataTableComponent is not used within the template of InventoryComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/inventory/inventory.component.ts:17:8:
+[37m      17 │         [32mDataTableComponent[37m,
+         ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mNG8113: DataTableComponent is not used within the template of OrdersComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/orders/orders.component.ts:18:8:
+[37m      18 │         [32mDataTableComponent[37m,
+         ╵         [32m~~~~~~~~~~~~~~~~~~[0m
+
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mNG8113: DataTableComponent is not used within the template of ProductsComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/products/products.component.ts:13:62:
+[37m      13 │ ..., LucideAngularModule, [32mDataTableComponent[37m, MarketplaceBadgeComp...
+         ╵                           [32m~~~~~~~~~~~~~~~~~~[0m
+
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mAll "@import" rules must come first[0m [invalid-@import]
+
+    src/styles.css:1947:0:
+[37m      1947 │ [32m@import[37m url('https://fonts.googleapis.com/css2?family=Inter:wght...
+           ╵ [32m~~~~~~~[0m
+
+  This rule cannot come before an "@import" rule
+
+    src/styles.css:1:0:
+[37m      1 │ [32m[37m*, ::before, ::after {
+        ╵ [32m^[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2322: Type 'string' is not assignable to type 'number'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/dashboard/dashboard.component.html:75:80:
+[37m      75 │ ..."Total Revenue" value="$45,231.89" [32mtrend[37m="20.1" icon="dollar-sign"
+         ╵                                       [32m~~~~~[0m
+
+  Error occurs in the template of component DashboardComponent.
+
+    src/app/features/dashboard/dashboard.component.ts:12:15:
+[37m      12 │   templateUrl: [32m'./dashboard.component.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2322: Type 'string' is not assignable to type 'number'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/dashboard/dashboard.component.html:78:75:
+[37m      78 │ ...e="Active Orders" value="+2350" [32mtrend[37m="180.1" icon="shopping-cart"
+         ╵                                    [32m~~~~~[0m
+
+  Error occurs in the template of component DashboardComponent.
+
+    src/app/features/dashboard/dashboard.component.ts:12:15:
+[37m      12 │   templateUrl: [32m'./dashboard.component.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2322: Type 'string' is not assignable to type 'number'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/dashboard/dashboard.component.html:81:71:
+[37m      81 │ ...tat-card title="Products" value="12,234" [32mtrend[37m="19" icon="package"
+         ╵                                             [32m~~~~~[0m
+
+  Error occurs in the template of component DashboardComponent.
+
+    src/app/features/dashboard/dashboard.component.ts:12:15:
+[37m      12 │   templateUrl: [32m'./dashboard.component.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2322: Type 'string' is not assignable to type 'number'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/dashboard/dashboard.component.html:84:71:
+[37m      84 │ ...t-card title="Active Now" value="+573" [32mtrend[37m="201" icon="activity"
+         ╵                                           [32m~~~~~[0m
+
+  Error occurs in the template of component DashboardComponent.
+
+    src/app/features/dashboard/dashboard.component.ts:12:15:
+[37m      12 │   templateUrl: [32m'./dashboard.component.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS7053: Element implicitly has an 'any' type because expression of type '"id"' can't be used to index type 'Warehouse | "all"'.
+  Property 'id' does not exist on type 'Warehouse | "all"'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/layout/header/header.component.html:74:93:
+[37m      74 │ ...' && selectedStore() !== 'all' && [32mselectedStore()['id'][37m === wh.id"
+         ╵                                      [32m~~~~~~~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component HeaderComponent.
+
+    src/app/layout/header/header.component.ts:11:17:
+[37m      11 │     templateUrl: [32m'./header.component.html'[37m,
+         ╵                  [32m~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG8003: No directive found with exportAs 'routerLinkActive'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/layout/sidebar/sidebar.component.html:52:30:
+[37m      52 │                         #rla="[32mrouterLinkActive[37m"></lucide-icon>
+         ╵                               [32m~~~~~~~~~~~~~~~~[0m
+
+  Error occurs in the template of component SidebarComponent.
+
+    src/app/layout/sidebar/sidebar.component.ts:26:17:
+[37m      26 │     templateUrl: [32m'./sidebar.component.html'[37m,
+         ╵                  [32m~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m

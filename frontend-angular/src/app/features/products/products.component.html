@@ -1,0 +1,144 @@
+<div class="space-y-6 animate-fade-in">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-display font-bold">Products</h1>
+            <p class="text-muted-foreground">Manage your product catalog across all marketplaces</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <button
+                class="btn-futuristic px-4 py-2 bg-card border border-border rounded-lg text-sm font-medium hover:bg-accent/50 flex items-center gap-2">
+                <lucide-icon name="download" class="w-4 h-4"></lucide-icon> Export
+            </button>
+            <button
+                class="btn-futuristic px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium shadow-glow-sm hover:shadow-glow-md flex items-center gap-2">
+                <lucide-icon name="plus" class="w-4 h-4"></lucide-icon> Add Product
+            </button>
+            <button
+                class="btn-futuristic px-4 py-2 bg-secondary text-secondary-foreground rounded-lg text-sm font-medium hover:bg-secondary/80 flex items-center gap-2"
+                (click)="syncInventory()">
+                <lucide-icon name="refresh-cw" class="w-4 h-4"></lucide-icon> Sync Inventory
+            </button>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="flex flex-col sm:flex-row gap-4 p-4 bg-card rounded-xl border border-border/50">
+        <div class="relative flex-1">
+            <lucide-icon name="search"
+                class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></lucide-icon>
+            <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
+                placeholder="Search by name or SKU..."
+                class="w-full pl-10 pr-4 py-2 bg-muted/30 border border-border/50 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary/50 transition-all">
+        </div>
+
+        <div class="flex items-center gap-2">
+            <button
+                class="p-2 border border-border rounded-lg hover:bg-accent/50 text-muted-foreground hover:text-foreground"
+                (click)="viewMode.set('list')" [class.bg-accent]="viewMode() === 'list'">
+                <lucide-icon name="layout-list" class="w-4 h-4"></lucide-icon>
+            </button>
+            <button
+                class="p-2 border border-border rounded-lg hover:bg-accent/50 text-muted-foreground hover:text-foreground"
+                (click)="viewMode.set('grid')" [class.bg-accent]="viewMode() === 'grid'">
+                <lucide-icon name="layout-grid" class="w-4 h-4"></lucide-icon>
+            </button>
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <div *ngIf="viewMode() === 'list'" class="min-h-[400px]">
+        <div class="overflow-x-auto rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-border/50 bg-muted/20">
+                        <th class="px-4 py-3 text-left font-medium text-muted-foreground">Product</th>
+                        <th class="px-4 py-3 text-left font-medium text-muted-foreground">Category</th>
+                        <th class="px-4 py-3 text-right font-medium text-muted-foreground">Price</th>
+                        <th class="px-4 py-3 text-right font-medium text-muted-foreground">Inventory</th>
+                        <th class="px-4 py-3 text-left font-medium text-muted-foreground">Marketplaces</th>
+                        <th class="px-4 py-3 text-center font-medium text-muted-foreground">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border/30">
+                    <tr *ngFor="let product of filteredProducts()"
+                        class="group hover:bg-primary/5 transition-colors cursor-pointer">
+                        <td class="px-4 py-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-muted overflow-hidden">
+                                    <img *ngIf="product.imageUrl" [src]="product.imageUrl"
+                                        class="w-full h-full object-cover">
+                                    <div *ngIf="!product.imageUrl"
+                                        class="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
+                                        Img</div>
+                                </div>
+                                <div>
+                                    <p class="font-medium">{{ product.name }}</p>
+                                    <p class="text-xs text-muted-foreground">{{ product.sku }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3">
+                            <p>{{ product.category }}</p>
+                        </td>
+                        <td class="px-4 py-3 text-right">
+                            <p class="font-semibold">₹{{ product.sellingPrice }}</p>
+                        </td>
+                        <td class="px-4 py-3 text-right">
+                            <span [class]="product.totalInventory < 10 ? 'text-destructive' : ''">{{
+                                product.totalInventory
+                                }}</span>
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex flex-wrap gap-1">
+                                <app-marketplace-badge *ngFor="let m of product.marketplaceListings"
+                                    [marketplace]="m.marketplace" [status]="m.status"></app-marketplace-badge>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <div class="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button (click)="handleEditProduct(product); $event.stopPropagation()"
+                                    class="p-1.5 hover:bg-primary/10 rounded text-primary">
+                                    <lucide-icon name="edit" class="w-4 h-4"></lucide-icon>
+                                </button>
+                                <button (click)="handleDeleteProduct(product); $event.stopPropagation()"
+                                    class="p-1.5 hover:bg-destructive/10 rounded text-destructive">
+                                    <lucide-icon name="trash-2" class="w-4 h-4"></lucide-icon>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr *ngIf="filteredProducts().length === 0">
+                        <td colspan="6" class="px-4 py-8 text-center text-muted-foreground">
+                            No products found matching your search.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Grid View Placeholder -->
+    <div *ngIf="viewMode() === 'grid'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div *ngFor="let product of filteredProducts()"
+            class="glass-card p-4 rounded-xl flex flex-col gap-3 group hover:-translate-y-1 transition-transform">
+            <div class="aspect-square bg-muted rounded-lg overflow-hidden relative">
+                <img *ngIf="product.imageUrl" [src]="product.imageUrl" class="w-full h-full object-cover">
+                <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button (click)="handleEditProduct(product)"
+                        class="p-2 bg-background/80 backdrop-blur rounded-full shadow-sm hover:text-primary">
+                        <lucide-icon name="edit" class="w-4 h-4"></lucide-icon>
+                    </button>
+                </div>
+            </div>
+            <div>
+                <h3 class="font-medium truncate">{{ product.name }}</h3>
+                <p class="text-sm text-muted-foreground">{{ product.sku }}</p>
+            </div>
+            <div class="flex items-center justify-between mt-auto">
+                <p class="font-bold">₹{{ product.sellingPrice }}</p>
+                <span class="text-xs px-2 py-1 rounded bg-secondary">{{ product.totalInventory }} stock</span>
+            </div>
+        </div>
+    </div>
+</div>
