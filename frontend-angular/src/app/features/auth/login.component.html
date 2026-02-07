@@ -31,9 +31,9 @@
       </a>
     </div>
 
-    <div class="alert error" *ngIf="false">
+    <div class="alert error" *ngIf="errorMessage()">
       <span class="alert-icon">!</span>
-      Invalid email or password. Please try again.
+      {{ errorMessage() }}
     </div>
 
     <form (ngSubmit)="submit()" class="form">
@@ -42,9 +42,9 @@
           <svg viewBox="0 0 24 24" aria-hidden="true" class="field-icon">
             <path d="M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2zm0 2l8 5 8-5H4z" />
           </svg>
-          Email
+          Email or username
         </span>
-        <input [(ngModel)]="email" name="email" type="email" required placeholder="you@company.com" />
+        <input [(ngModel)]="identifier" name="identifier" type="text" required placeholder="user@company.com or username" [disabled]="loading()" />
       </label>
 
       <label class="field">
@@ -54,11 +54,13 @@
           </svg>
           Password
         </span>
-        <input [(ngModel)]="password" name="password" type="password" required placeholder="••••••••" />
+        <input [(ngModel)]="password" name="password" type="password" required placeholder="••••••••" [disabled]="loading()" />
       </label>
 
-      <button type="submit" class="primary-btn">
-        <span class="btn-icon">↗</span> Login
+      <button type="submit" class="primary-btn" [disabled]="loading()">
+        <span class="btn-icon" *ngIf="!loading()">↗</span>
+        <span *ngIf="loading()">…</span>
+        {{ loading() ? 'Logging in' : 'Login' }}
       </button>
     </form>
 

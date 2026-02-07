@@ -31,6 +31,11 @@
       </button>
     </div>
 
+    <div class="alert error" *ngIf="errorMessage()">
+      <span class="alert-icon">!</span>
+      {{ errorMessage() }}
+    </div>
+
     <form (ngSubmit)="submit()" class="form">
       <label class="field">
         <span class="field-label">
@@ -39,7 +44,7 @@
           </svg>
           Full name
         </span>
-        <input [(ngModel)]="name" name="name" required placeholder="Your full name" />
+        <input [(ngModel)]="fullName" name="fullName" required placeholder="Your full name" [disabled]="loading()" />
       </label>
 
       <label class="field">
@@ -49,7 +54,17 @@
           </svg>
           Company name
         </span>
-        <input [(ngModel)]="companyName" name="companyName" required placeholder="Your company" />
+        <input [(ngModel)]="companyName" name="companyName" required placeholder="Your company" [disabled]="loading()" />
+      </label>
+
+      <label class="field">
+        <span class="field-label">
+          <svg viewBox="0 0 24 24" aria-hidden="true" class="field-icon">
+            <path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7zm0 9a2 2 0 1 0-2-2 2 2 0 0 0 2 2z" />
+          </svg>
+          Company address
+        </span>
+        <textarea [(ngModel)]="companyAddress" name="companyAddress" rows="3" required placeholder="Street, city, state, ZIP" [disabled]="loading()"></textarea>
       </label>
 
       <label class="field">
@@ -59,7 +74,17 @@
           </svg>
           Email
         </span>
-        <input [(ngModel)]="email" name="email" type="email" required placeholder="you@company.com" />
+        <input [(ngModel)]="email" name="email" type="email" required placeholder="you@company.com" [disabled]="loading()" />
+      </label>
+
+      <label class="field">
+        <span class="field-label">
+          <svg viewBox="0 0 24 24" aria-hidden="true" class="field-icon">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+          </svg>
+          Mobile number
+        </span>
+        <input [(ngModel)]="mobileNumber" name="mobileNumber" type="tel" required placeholder="+1 (555) 000-0000" [disabled]="loading()" />
       </label>
 
       <label class="field">
@@ -69,21 +94,23 @@
           </svg>
           Password
         </span>
-        <input [(ngModel)]="password" name="password" type="password" required placeholder="Create a password" />
+        <input [(ngModel)]="password" name="password" type="password" required placeholder="Create a password" [disabled]="loading()" />
       </label>
 
       <label class="field">
         <span class="field-label">
           <svg viewBox="0 0 24 24" aria-hidden="true" class="field-icon">
-            <path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7zm0 9a2 2 0 1 0-2-2 2 2 0 0 0 2 2z" />
+            <path d="M3.9 12c.35-1.8 2.57-3.5 6.1-3.5.63 0 1.26.07 1.87.2m10.08.3c1.18.5 2.25 1.35 2.95 2.5M9 9c2.21 0 4.265.6 5.896 1.64m6 7a9.003 9.003 0 0 1-7.896 4.36M9 19c-2.21 0-4.265-.6-5.896-1.64" />
           </svg>
-          Address
+          Warehouse ID
         </span>
-        <textarea [(ngModel)]="address" name="address" rows="3" required placeholder="Street, city, state, ZIP"></textarea>
+        <input [(ngModel)]="warehouseId" name="warehouseId" required placeholder="Enter warehouse ID" [disabled]="loading()" />
       </label>
 
-      <button type="submit" class="primary-btn">
-        <span class="btn-icon">👤</span> Create account
+      <button type="submit" class="primary-btn" [disabled]="loading()">
+        <span class="btn-icon" *ngIf="!loading()">👤</span>
+        <span *ngIf="loading()">…</span>
+        {{ loading() ? 'Creating account' : 'Create account' }}
       </button>
     </form>
 

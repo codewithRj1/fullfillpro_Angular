@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-signup',
@@ -11,23 +12,50 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./signup.component.css']
 })
 export class SignupComponent {
-  name = '';
+  fullName = '';
   companyName = '';
+  companyAddress = '';
   email = '';
+  mobileNumber = '';
   password = '';
-  address = '';
+  warehouseId = '';
+  loading = signal(false);
+  errorMessage = signal('');
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService
+  ) {}
 
   submit() {
-    // TODO: call registration API
-    console.log('signup', {
-      name: this.name,
+    if (!this.fullName || !this.companyName || !this.companyAddress || !this.email || !this.mobileNumber || !this.password || !this.warehouseId) {
+      this.errorMessage.set('All fields are required');
+      return;
+    }
+
+    this.loading.set(true);
+    this.errorMessage.set('');
+
+    this.authService.signup({
+      fullName: this.fullName,
       companyName: this.companyName,
+      companyAddress: this.companyAddress,
       email: this.email,
+      mobileNumber: this.mobileNumber,
       password: this.password,
-      address: this.address
+      warehouseId: this.warehouseId
+    }).subscribe({
+      next: (response) => {
+        this.loading.set(false);
+        console.log('Signup successful:', response);
+        // Redirect to book appointment after successful signup
+        this.router.navigate(['/book-appointment']);
+      },
+      error: (err) => {
+        this.loading.set(false);
+        this.errorMessage.set(err.error?.message || 'Signup failed. Please try again.');
+        console.error('Signup error:', err);
+      }
     });
-    this.router.navigate(['/book-appointment']);
   }
 }
