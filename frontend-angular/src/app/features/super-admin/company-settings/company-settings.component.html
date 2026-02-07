@@ -1,0 +1,50 @@
+<div class="space-y-6">
+    <div>
+        <h1 class="text-2xl font-display font-bold">Company-Level Settings</h1>
+        <p class="text-muted-foreground">Override defaults for specific companies</p>
+    </div>
+
+    <div class="filters">
+        <div class="search-box">
+            <lucide-icon name="search" class="w-4 h-4 text-muted-foreground"></lucide-icon>
+            <input type="text" [ngModel]="search()" (ngModelChange)="search.set($event)"
+                placeholder="Search company name or ID" />
+        </div>
+    </div>
+
+    <div class="table-card">
+        <table class="w-full text-sm">
+            <thead>
+                <tr>
+                    <th>Company</th>
+                    <th>Plan</th>
+                    <th>Warehouse Limit</th>
+                    <th>Auto Sync</th>
+                    <th>Priority Support</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let c of filtered()">
+                    <td>
+                        <div class="cell-main">
+                            <div class="avatar">{{ c.name[0] }}</div>
+                            <div>
+                                <div class="font-medium">{{ c.name }}</div>
+                                <div class="text-xs text-muted-foreground">{{ c.id }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="pill">{{ c.plan }}</span></td>
+                    <td>{{ c.warehouseLimit }}</td>
+                    <td><span [class]="c.autoSync ? 'pill success' : 'pill muted'">{{ c.autoSync ? 'On' : 'Off' }}</span></td>
+                    <td><span [class]="c.prioritySupport ? 'pill success' : 'pill muted'">{{ c.prioritySupport ? 'Yes' : 'No' }}</span></td>
+                    <td><span [class]="c.active ? 'pill success' : 'pill danger'">{{ c.active ? 'Active' : 'Inactive' }}</span></td>
+                </tr>
+                <tr *ngIf="filtered().length === 0">
+                    <td colspan="6" class="text-center text-muted-foreground py-6">No companies found.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,47 @@
+<div class="space-y-6">
+    <div>
+        <h1 class="text-2xl font-display font-bold">Email Alerts</h1>
+        <p class="text-muted-foreground">Send announcements to all companies or a selected list</p>
+    </div>
+
+    <div class="card">
+        <div class="toggle-row">
+            <div>
+                <h2 class="font-semibold">Recipient Scope</h2>
+                <p class="text-sm text-muted-foreground">Choose all companies or pick specific sellers</p>
+            </div>
+            <label class="toggle">
+                <input type="checkbox" [checked]="sendToAll()" (change)="toggleAllSelection()">
+                <span>Send to all</span>
+            </label>
+        </div>
+
+        <div class="company-list" *ngIf="!sendToAll()">
+            <div class="company-row" *ngFor="let c of companies()">
+                <label class="inline-flex items-center gap-3">
+                    <input type="checkbox" [checked]="c.selected" (change)="toggleCompany(c.id)">
+                    <span class="font-medium">{{ c.name }}</span>
+                    <span class="text-xs text-muted-foreground">{{ c.id }}</span>
+                </label>
+            </div>
+            <div class="text-xs text-muted-foreground">Selected: {{ selectedCount() }}</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="grid gap-4">
+            <label class="field">
+                <span class="field-label">Subject</span>
+                <input [(ngModel)]="subject" placeholder="Important platform update" />
+            </label>
+            <label class="field">
+                <span class="field-label">Message</span>
+                <textarea [(ngModel)]="message" rows="6" placeholder="Write the email message..."></textarea>
+            </label>
+            <button class="primary-btn" (click)="send()">
+                <lucide-icon name="send" class="w-4 h-4"></lucide-icon>
+                Send alert
+            </button>
+        </div>
+    </div>
+</div>

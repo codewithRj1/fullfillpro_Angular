@@ -1,0 +1,68 @@
+:host {
+    display: block;
+}
+
+.card {
+    border: 1px solid hsl(var(--border));
+    border-radius: 14px;
+    background: hsl(var(--card));
+    padding: 20px;
+}
+
+.toggle-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+}
+
+.company-list {
+    margin-top: 16px;
+    display: grid;
+    gap: 10px;
+}
+
+.company-row {
+    padding: 8px 0;
+    border-bottom: 1px dashed hsl(var(--border));
+}
+
+.field {
+    display: grid;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.field-label {
+    color: hsl(var(--muted-foreground));
+}
+
+.field input,
+.field textarea {
+    border: 1px solid hsl(var(--border));
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: hsl(var(--muted) / 0.2);
+}
+
+.primary-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: none;
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    font-weight: 600;
+    cursor: pointer;
+}

@@ -92,16 +92,27 @@
         </button>
 
         <!-- User Menu -->
-        <button class="flex items-center gap-2 pl-1 pr-3 py-1 hover:bg-primary/5 rounded-xl transition-colors">
-            <div
-                class="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-info flex items-center justify-center shadow-glow-sm">
-                <lucide-icon name="user" class="w-4 h-4 text-white"></lucide-icon>
+        <div class="relative">
+            <button (click)="toggleProfileMenu()"
+                class="flex items-center gap-2 pl-1 pr-3 py-1 hover:bg-primary/5 rounded-xl transition-colors">
+                <div
+                    class="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-info flex items-center justify-center shadow-glow-sm">
+                    <lucide-icon name="user" class="w-4 h-4 text-white"></lucide-icon>
+                </div>
+                <div class="text-left hidden md:block">
+                    <div class="text-sm font-medium leading-none">Admin User</div>
+                    <div class="text-xs text-muted-foreground mt-0.5">admin&#64;fulfillpro.com</div>
+                </div>
+                <lucide-icon name="chevron-down" class="w-4 h-4 text-muted-foreground"></lucide-icon>
+            </button>
+
+            <div *ngIf="profileMenuOpen()" class="menu-backdrop" (click)="closeProfileMenu()"></div>
+            <div *ngIf="profileMenuOpen()" class="profile-menu">
+                <button class="menu-item" (click)="goToAccountSettings()">Account Settings</button>
+                <button class="menu-item" (click)="goToActivePlan()">Active Plan</button>
+                <div class="menu-divider"></div>
+                <button class="menu-item danger" (click)="logout()">Logout</button>
             </div>
-            <div class="text-left hidden md:block">
-                <div class="text-sm font-medium leading-none">Admin User</div>
-                <div class="text-xs text-muted-foreground mt-0.5">admin&#64;fulfillpro.com</div>
-            </div>
-            <lucide-icon name="chevron-down" class="w-4 h-4 text-muted-foreground"></lucide-icon>
-        </button>
+        </div>
     </div>
 </header>

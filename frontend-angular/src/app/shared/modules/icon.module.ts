@@ -29,6 +29,9 @@ import {
     Upload,
     Grid,
     List,
+    LayoutGrid,
+    LayoutList,
+    LayoutDashboard,
     MoreVertical,
     Eye,
     Bell,
@@ -49,7 +52,10 @@ import {
     Settings2,
     ShoppingBag,
     Globe,
-    Shirt
+    Shirt,
+    UserCog,
+    Sparkles,
+    User
 } from 'lucide-angular';
 
 const icons = {
@@ -81,6 +87,9 @@ const icons = {
     Upload,
     Grid,
     List,
+    LayoutGrid,
+    LayoutList,
+    LayoutDashboard,
     MoreVertical,
     Eye,
     Bell,
@@ -101,7 +110,10 @@ const icons = {
     Settings2,
     ShoppingBag,
     Globe,
-    Shirt
+    Shirt,
+    UserCog,
+    Sparkles,
+    User
 };
 
 @NgModule({

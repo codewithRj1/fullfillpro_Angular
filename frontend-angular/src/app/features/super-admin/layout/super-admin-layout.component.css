@@ -1,0 +1,23 @@
+:host {
+    display: block;
+}
+
+.sa-shell {
+    display: flex;
+    min-height: 100vh;
+    background: hsl(var(--background));
+}
+
+.sa-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.sa-content {
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}

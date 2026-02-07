@@ -25,6 +25,7 @@ export class SidebarComponent {
         { label: 'Reports', icon: 'bar-chart-3', path: '/reports', exact: false },
         { label: 'Store Setup', icon: 'settings', path: '/store-setup', exact: false },
         { label: 'Users & Roles', icon: 'user-cog', path: '/users', exact: false },
+        { label: 'Super Admin', icon: 'user-cog', path: '/super-admin', exact: false },
     ];
 
     toggleCollapse() {

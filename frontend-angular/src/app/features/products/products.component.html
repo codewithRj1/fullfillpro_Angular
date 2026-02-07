@@ -7,11 +7,18 @@
         </div>
         <div class="flex items-center gap-2">
             <button
-                class="btn-futuristic px-4 py-2 bg-card border border-border rounded-lg text-sm font-medium hover:bg-accent/50 flex items-center gap-2">
+                class="btn-futuristic px-4 py-2 bg-card border border-border rounded-lg text-sm font-medium hover:bg-accent/50 flex items-center gap-2"
+                (click)="openImportDialog()">
+                <lucide-icon name="upload" class="w-4 h-4"></lucide-icon> Import
+            </button>
+            <button
+                class="btn-futuristic px-4 py-2 bg-card border border-border rounded-lg text-sm font-medium hover:bg-accent/50 flex items-center gap-2"
+                (click)="handleExport()">
                 <lucide-icon name="download" class="w-4 h-4"></lucide-icon> Export
             </button>
             <button
-                class="btn-futuristic px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium shadow-glow-sm hover:shadow-glow-md flex items-center gap-2">
+                class="btn-futuristic px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium shadow-glow-sm hover:shadow-glow-md flex items-center gap-2"
+                (click)="handleAddProduct()">
                 <lucide-icon name="plus" class="w-4 h-4"></lucide-icon> Add Product
             </button>
             <button
@@ -138,6 +145,182 @@
             <div class="flex items-center justify-between mt-auto">
                 <p class="font-bold">₹{{ product.sellingPrice }}</p>
                 <span class="text-xs px-2 py-1 rounded bg-secondary">{{ product.totalInventory }} stock</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Import Products Modal -->
+<div *ngIf="importDialogOpen()" class="modal-backdrop" (click)="closeImportDialog()">
+    <div class="modal-card small" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <div>
+                <h2 class="text-lg font-display font-bold">Import Products</h2>
+                <p class="text-sm text-muted-foreground">Upload Excel or CSV to bulk add products</p>
+            </div>
+            <button class="icon-button" (click)="closeImportDialog()">
+                <lucide-icon name="x" class="w-4 h-4"></lucide-icon>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <label class="upload-box">
+                <input type="file" accept=".xls,.xlsx,.csv" (change)="handleImportFile($event)" />
+                <span>Click to upload Excel or CSV</span>
+                <span class="upload-hint">.xls, .xlsx, or .csv</span>
+            </label>
+
+            <div class="file-pill" *ngIf="importFileName">
+                <span>{{ importFileName }}</span>
+                <button type="button" class="ghost-btn" (click)="importFileName = ''">Remove</button>
+            </div>
+
+            <div class="error-text" *ngIf="importFileError">{{ importFileError }}</div>
+
+            <div class="modal-footer">
+                <button type="button" class="ghost-btn" (click)="closeImportDialog()">Cancel</button>
+                <button type="button" class="primary-btn" (click)="submitImport()">Import products</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Product Modal -->
+<div *ngIf="addProductOpen()" class="modal-backdrop" (click)="closeAddProduct()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <div>
+                <h2 class="text-xl font-display font-bold">Add Product</h2>
+                <p class="text-sm text-muted-foreground">Create a new product and track inventory</p>
+            </div>
+            <button class="icon-button" (click)="closeAddProduct()">
+                <lucide-icon name="x" class="w-4 h-4"></lucide-icon>
+            </button>
+        </div>
+
+        <form class="modal-body" (ngSubmit)="submitNewProduct()">
+            <div class="form-grid">
+                <label class="field">
+                    <span class="field-label">Product name</span>
+                    <input [(ngModel)]="name" name="name" required placeholder="Premium Tee - Midnight" />
+                </label>
+
+                <label class="field">
+                    <span class="field-label">SKU</span>
+                    <input [(ngModel)]="sku" name="sku" required placeholder="TEE-MID-001" />
+                </label>
+
+                <label class="field">
+                    <span class="field-label">Purchase price</span>
+                    <input [(ngModel)]="purchasePrice" name="purchasePrice" type="number" required placeholder="450" />
+                </label>
+
+                <label class="field">
+                    <span class="field-label">Shipment cost</span>
+                    <input [(ngModel)]="shipmentCost" name="shipmentCost" type="number" required placeholder="40" />
+                </label>
+
+                <label class="field">
+                    <span class="field-label">Selling price</span>
+                    <input [(ngModel)]="sellingPrice" name="sellingPrice" type="number" required placeholder="899" />
+                </label>
+
+                <label class="field">
+                    <span class="field-label">Inventory</span>
+                    <input [(ngModel)]="inventory" name="inventory" type="number" required placeholder="120" />
+                </label>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <div>
+                        <h3 class="section-title">Images</h3>
+                        <p class="section-subtitle">Upload product shots or add image URLs</p>
+                    </div>
+                    <button type="button" class="secondary-btn" (click)="openImageDialog()">
+                        Add Images
+                    </button>
+                </div>
+
+                <div class="image-grid" *ngIf="images.length > 0">
+                    <div class="image-card" *ngFor="let img of images; let i = index">
+                        <img [src]="img" alt="Product image">
+                        <button type="button" class="remove-image" (click)="removeImage(i)">Remove</button>
+                    </div>
+                </div>
+
+                <div class="empty-note" *ngIf="images.length === 0">
+                    No images added yet.
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <div>
+                        <h3 class="section-title">Variations</h3>
+                        <p class="section-subtitle">Add options like size, color, or material</p>
+                    </div>
+                    <label class="toggle">
+                        <input type="checkbox" [checked]="hasVariants()" (change)="hasVariants.set(!hasVariants())" />
+                        <span>Enable variations</span>
+                    </label>
+                </div>
+
+                <div *ngIf="hasVariants()" class="variant-list">
+                    <div class="variant-row" *ngFor="let v of variations; let i = index">
+                        <label class="field">
+                            <span class="field-label">Option name</span>
+                            <input [(ngModel)]="v.name" name="variationName{{i}}" placeholder="Size" />
+                        </label>
+                        <label class="field">
+                            <span class="field-label">Values</span>
+                            <input [(ngModel)]="v.values" name="variationValues{{i}}" placeholder="S, M, L, XL" />
+                        </label>
+                        <button type="button" class="ghost-btn" (click)="removeVariation(i)">Remove</button>
+                    </div>
+
+                    <button type="button" class="secondary-btn" (click)="addVariation()">Add variation</button>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="ghost-btn" (click)="closeAddProduct()">Cancel</button>
+                <button type="submit" class="primary-btn">Create product</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Image Popup -->
+<div *ngIf="imageDialogOpen()" class="modal-backdrop" (click)="closeImageDialog()">
+    <div class="modal-card small" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <div>
+                <h2 class="text-lg font-display font-bold">Add Images</h2>
+                <p class="text-sm text-muted-foreground">Upload files or paste image URLs</p>
+            </div>
+            <button class="icon-button" (click)="closeImageDialog()">
+                <lucide-icon name="x" class="w-4 h-4"></lucide-icon>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <label class="upload-box">
+                <input type="file" accept="image/*" multiple (change)="handleImageUpload($event)" />
+                <span>Click to upload images</span>
+                <span class="upload-hint">PNG, JPG up to 5MB</span>
+            </label>
+
+            <div class="url-row">
+                <input [(ngModel)]="imageUrlInput" name="imageUrlInput" placeholder="https://image-url.com/product.jpg" />
+                <button type="button" class="secondary-btn" (click)="addImageUrl()">Add URL</button>
+            </div>
+
+            <div class="image-grid" *ngIf="images.length > 0">
+                <div class="image-card" *ngFor="let img of images; let i = index">
+                    <img [src]="img" alt="Product image">
+                    <button type="button" class="remove-image" (click)="removeImage(i)">Remove</button>
+                </div>
             </div>
         </div>
     </div>

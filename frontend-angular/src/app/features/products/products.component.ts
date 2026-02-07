@@ -1,7 +1,7 @@
 import { Component, OnInit, signal, computed, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Plus, Search, Filter, Download, LayoutList, LayoutGrid, MoreVertical, Edit, Trash2 } from 'lucide-angular';
+import { IconModule } from '../../shared/modules/icon.module';
 import { ApiService } from '../../core/services/api.service';
 import { Product } from '../../core/models';
 import { MarketplaceBadgeComponent } from '../../shared/components/marketplace-badge/marketplace-badge.component';
@@ -9,7 +9,7 @@ import { MarketplaceBadgeComponent } from '../../shared/components/marketplace-b
 @Component({
     selector: 'app-products',
     standalone: true,
-    imports: [CommonModule, FormsModule, LucideAngularModule, MarketplaceBadgeComponent],
+    imports: [CommonModule, FormsModule, IconModule, MarketplaceBadgeComponent],
     templateUrl: './products.component.html',
     styleUrls: ['./products.component.css']
 })
@@ -18,6 +18,22 @@ export class ProductsComponent implements OnInit {
     searchQuery = signal('');
     viewMode = signal<'list' | 'grid'>('list');
     loading = signal(true);
+    addProductOpen = signal(false);
+    imageDialogOpen = signal(false);
+    hasVariants = signal(false);
+
+    name = '';
+    sku = '';
+    purchasePrice = '';
+    shipmentCost = '';
+    sellingPrice = '';
+    inventory = '';
+    images: string[] = [];
+    imageUrlInput = '';
+    variations: Array<{ name: string; values: string }> = [];
+    importDialogOpen = signal(false);
+    importFileName = '';
+    importFileError = '';
 
     // Column Templates need to be accessed via ViewChild in the template itself usually, 
     // but for simple Angular data tables we often pass the TemplateRef.
@@ -53,7 +69,46 @@ export class ProductsComponent implements OnInit {
     }
 
     handleAddProduct() {
-        // Open Dialog
+        this.resetNewProduct();
+        this.addProductOpen.set(true);
+    }
+
+    openImportDialog() {
+        this.importFileName = '';
+        this.importFileError = '';
+        this.importDialogOpen.set(true);
+    }
+
+    closeImportDialog() {
+        this.importDialogOpen.set(false);
+    }
+
+    handleImportFile(event: Event) {
+        const input = event.target as HTMLInputElement;
+        const file = input.files?.[0];
+        if (!file) return;
+
+        const ext = file.name.split('.').pop()?.toLowerCase() || '';
+        const allowed = ['xls', 'xlsx', 'csv'];
+        if (!allowed.includes(ext)) {
+            this.importFileError = 'Please upload a .xls, .xlsx, or .csv file.';
+            this.importFileName = '';
+            input.value = '';
+            return;
+        }
+
+        this.importFileError = '';
+        this.importFileName = file.name;
+        input.value = '';
+    }
+
+    submitImport() {
+        if (!this.importFileName) {
+            this.importFileError = 'Select a file to import.';
+            return;
+        }
+        console.log('import-products', { fileName: this.importFileName });
+        this.closeImportDialog();
     }
 
     handleEditProduct(product: Product) {
@@ -66,6 +121,85 @@ export class ProductsComponent implements OnInit {
                 this.products.update(list => list.filter(p => p.id !== product.id));
             });
         }
+    }
+
+    closeAddProduct() {
+        this.addProductOpen.set(false);
+        this.imageDialogOpen.set(false);
+    }
+
+    resetNewProduct() {
+        this.name = '';
+        this.sku = '';
+        this.purchasePrice = '';
+        this.shipmentCost = '';
+        this.sellingPrice = '';
+        this.inventory = '';
+        this.images = [];
+        this.imageUrlInput = '';
+        this.hasVariants.set(false);
+        this.variations = [];
+    }
+
+    openImageDialog() {
+        this.imageDialogOpen.set(true);
+    }
+
+    closeImageDialog() {
+        this.imageDialogOpen.set(false);
+    }
+
+    handleImageUpload(event: Event) {
+        const input = event.target as HTMLInputElement;
+        if (!input.files || input.files.length === 0) return;
+
+        Array.from(input.files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                if (typeof reader.result === 'string') {
+                    this.images = [...this.images, reader.result];
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+
+        input.value = '';
+    }
+
+    addImageUrl() {
+        const url = this.imageUrlInput.trim();
+        if (!url) return;
+        this.images = [...this.images, url];
+        this.imageUrlInput = '';
+    }
+
+    removeImage(index: number) {
+        this.images = this.images.filter((_, i) => i !== index);
+    }
+
+    addVariation() {
+        this.variations = [...this.variations, { name: '', values: '' }];
+    }
+
+    removeVariation(index: number) {
+        this.variations = this.variations.filter((_, i) => i !== index);
+    }
+
+    submitNewProduct() {
+        const payload = {
+            name: this.name,
+            sku: this.sku,
+            purchasePrice: this.purchasePrice,
+            shipmentCost: this.shipmentCost,
+            sellingPrice: this.sellingPrice,
+            inventory: this.inventory,
+            images: this.images,
+            hasVariants: this.hasVariants(),
+            variations: this.variations
+        };
+
+        console.log('create-product', payload);
+        this.closeAddProduct();
     }
 
     syncInventory() {

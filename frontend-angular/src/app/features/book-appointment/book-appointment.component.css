@@ -1,0 +1,5 @@
+.glass-card { max-width: 520px; }
+.neon-text { color: hsl(var(--primary)); }
+
+input::placeholder,
+textarea::placeholder { color: hsl(var(--muted-foreground) / 0.8); }

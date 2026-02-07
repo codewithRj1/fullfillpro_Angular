@@ -1,0 +1,94 @@
+<div class="auth-page">
+  <div class="auth-hero">
+    <div class="logo-wrap">
+      <div class="logo-badge">
+        <svg viewBox="0 0 24 24" aria-hidden="true" class="logo-mark">
+          <path d="M7 12.5l6-8 1.5 1.2-3.2 4.3H17l-6 8-1.5-1.2 3.1-4.3H7z" />
+        </svg>
+        <span class="logo-dot"></span>
+      </div>
+    </div>
+    <div class="brand">
+      <span>FULLFILL</span><span class="brand-accent">PRO</span>
+    </div>
+    <div class="tagline">
+      <span class="tag-icon">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 4a4 4 0 0 1 4 4v2h2a2 2 0 0 1 2 2v6H4v-6a2 2 0 0 1 2-2h2V8a4 4 0 0 1 4-4zm-2 6h4V8a2 2 0 1 0-4 0v2z" />
+        </svg>
+      </span>
+      AI-Powered Fulfillment Platform
+    </div>
+  </div>
+
+  <div class="auth-card">
+    <div class="auth-tabs">
+      <a class="tab" routerLink="/login">
+        <span class="tab-icon">↗</span> Login
+      </a>
+      <button class="tab active" type="button">
+        <span class="tab-icon">👤</span> Sign Up
+      </button>
+    </div>
+
+    <form (ngSubmit)="submit()" class="form">
+      <label class="field">
+        <span class="field-label">
+          <svg viewBox="0 0 24 24" aria-hidden="true" class="field-icon">
+            <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-4.4 0-8 2-8 4v2h16v-2c0-2-3.6-4-8-4z" />
+          </svg>
+          Full name
+        </span>
+        <input [(ngModel)]="name" name="name" required placeholder="Your full name" />
+      </label>
+
+      <label class="field">
+        <span class="field-label">
+          <svg viewBox="0 0 24 24" aria-hidden="true" class="field-icon">
+            <path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7zm3 0v10h12V7H6zm2 2h8v2H8V9zm0 4h6v2H8v-2z" />
+          </svg>
+          Company name
+        </span>
+        <input [(ngModel)]="companyName" name="companyName" required placeholder="Your company" />
+      </label>
+
+      <label class="field">
+        <span class="field-label">
+          <svg viewBox="0 0 24 24" aria-hidden="true" class="field-icon">
+            <path d="M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2zm0 2l8 5 8-5H4z" />
+          </svg>
+          Email
+        </span>
+        <input [(ngModel)]="email" name="email" type="email" required placeholder="you@company.com" />
+      </label>
+
+      <label class="field">
+        <span class="field-label">
+          <svg viewBox="0 0 24 24" aria-hidden="true" class="field-icon">
+            <path d="M6 10a6 6 0 0 1 12 0v2h1a2 2 0 0 1 2 2v6H3v-6a2 2 0 0 1 2-2h1v-2zm2 0v2h8v-2a4 4 0 0 0-8 0z" />
+          </svg>
+          Password
+        </span>
+        <input [(ngModel)]="password" name="password" type="password" required placeholder="Create a password" />
+      </label>
+
+      <label class="field">
+        <span class="field-label">
+          <svg viewBox="0 0 24 24" aria-hidden="true" class="field-icon">
+            <path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7zm0 9a2 2 0 1 0-2-2 2 2 0 0 0 2 2z" />
+          </svg>
+          Address
+        </span>
+        <textarea [(ngModel)]="address" name="address" rows="3" required placeholder="Street, city, state, ZIP"></textarea>
+      </label>
+
+      <button type="submit" class="primary-btn">
+        <span class="btn-icon">👤</span> Create account
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      By continuing, you agree to our Terms of Service and Privacy Policy
+    </div>
+  </div>
+</div>

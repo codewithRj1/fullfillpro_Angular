@@ -1,20 +1,21 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule } from 'lucide-angular';
+import { Router } from '@angular/router';
 import { ApiService } from '../../core/services/api.service';
 import { Warehouse } from '../../core/models';
-import { MockLucideIconComponent } from '../../shared/components/mock-lucide-icon.component';
+import { IconModule } from '../../shared/modules/icon.module';
 
 @Component({
     selector: 'app-header',
     standalone: true,
-    imports: [CommonModule, MockLucideIconComponent],
+    imports: [CommonModule, IconModule],
     templateUrl: './header.component.html',
     styleUrls: ['./header.component.css']
 })
 export class HeaderComponent implements OnInit {
     warehouses = signal<Warehouse[]>([]);
     selectedStore = signal<Warehouse | 'all'>('all');
+    profileMenuOpen = signal(false);
 
     // Computed helper for template safety
     selectedStoreId = computed(() => {
@@ -22,7 +23,7 @@ export class HeaderComponent implements OnInit {
         return s === 'all' ? null : s.id;
     });
 
-    constructor(private api: ApiService) { }
+    constructor(private api: ApiService, private router: Router) { }
 
     ngOnInit() {
         this.api.getWarehouses().subscribe({
@@ -51,5 +52,28 @@ export class HeaderComponent implements OnInit {
 
     selectStore(store: Warehouse | 'all') {
         this.selectedStore.set(store);
+    }
+
+    toggleProfileMenu() {
+        this.profileMenuOpen.update(v => !v);
+    }
+
+    closeProfileMenu() {
+        this.profileMenuOpen.set(false);
+    }
+
+    goToAccountSettings() {
+        this.closeProfileMenu();
+        this.router.navigate(['/account-settings']);
+    }
+
+    goToActivePlan() {
+        this.closeProfileMenu();
+        this.router.navigate(['/active-plan']);
+    }
+
+    logout() {
+        this.closeProfileMenu();
+        this.router.navigate(['/login']);
     }
 }

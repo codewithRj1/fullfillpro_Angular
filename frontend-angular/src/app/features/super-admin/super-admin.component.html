@@ -1,0 +1,83 @@
+<div class="space-y-6">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-display font-bold">Super Admin Panel</h1>
+            <p class="text-muted-foreground">Manage sellers, plans, and access dashboards</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="badge">All Sellers</span>
+            <span class="badge accent">Super Marked</span>
+        </div>
+    </div>
+
+    <div class="filters">
+        <div class="search-box">
+            <lucide-icon name="search" class="w-4 h-4 text-muted-foreground"></lucide-icon>
+            <input type="text" [ngModel]="search()" (ngModelChange)="search.set($event)"
+                placeholder="Search name, company, ID, or email" />
+        </div>
+        <select [ngModel]="planFilter()" (ngModelChange)="planFilter.set($event)">
+            <option value="all">All plans</option>
+            <option value="starter">Starter</option>
+            <option value="growth">Growth</option>
+            <option value="pro">Pro</option>
+        </select>
+    </div>
+
+    <div class="table-card">
+        <table class="w-full text-sm">
+            <thead>
+                <tr>
+                    <th>Seller</th>
+                    <th>Company</th>
+                    <th>Company ID</th>
+                    <th>Plan</th>
+                    <th>Super Mark</th>
+                    <th>Status</th>
+                    <th class="text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let user of filteredUsers()">
+                    <td>
+                        <div class="cell-main">
+                            <div class="avatar">{{ user.name[0] }}</div>
+                            <div>
+                                <div class="font-medium">{{ user.name }}</div>
+                                <div class="text-xs text-muted-foreground">{{ user.email }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ user.companyName }}</td>
+                    <td class="font-mono text-xs">{{ user.id }}</td>
+                    <td>
+                        <span class="pill">{{ user.plan }}</span>
+                    </td>
+                    <td>
+                        <span [class]="user.superMark ? 'pill success' : 'pill muted'">
+                            {{ user.superMark ? 'Yes' : 'No' }}
+                        </span>
+                    </td>
+                    <td>
+                        <span [class]="user.active ? 'pill success' : 'pill danger'">
+                            {{ user.active ? 'Active' : 'Inactive' }}
+                        </span>
+                    </td>
+                    <td class="text-right">
+                        <div class="actions">
+                            <button class="ghost-btn" (click)="toggleActive(user)">
+                                {{ user.active ? 'Deactivate' : 'Activate' }}
+                            </button>
+                            <button class="primary-btn" (click)="goToSellerDashboard(user)">
+                                Go to Dashboard
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr *ngIf="filteredUsers().length === 0">
+                    <td colspan="7" class="text-center text-muted-foreground py-6">No users found.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

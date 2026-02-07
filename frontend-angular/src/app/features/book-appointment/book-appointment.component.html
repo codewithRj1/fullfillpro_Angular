@@ -1,0 +1,41 @@
+<div class="min-h-screen flex items-center justify-center p-6 bg-background">
+  <div class="w-full max-w-md glass-card p-8 rounded-xl neon-glow">
+    <div class="text-center text-xs uppercase tracking-[0.28em] text-muted-foreground mb-2">FullfillPro</div>
+    <h2 class="text-2xl font-display neon-text mb-4 text-center">Book Appointment</h2>
+    <p class="text-sm text-muted-foreground mb-6 text-center">Tell us your preferred time and we will confirm</p>
+
+    <form (ngSubmit)="submit()" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-muted-foreground mb-2">Full name</label>
+        <input [(ngModel)]="name" name="name" required class="w-full px-4 py-3 rounded-lg border border-input bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/60" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-muted-foreground mb-2">Email</label>
+        <input [(ngModel)]="email" name="email" type="email" required class="w-full px-4 py-3 rounded-lg border border-input bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/60" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-muted-foreground mb-2">Phone number</label>
+        <input [(ngModel)]="phone" name="phone" type="tel" required class="w-full px-4 py-3 rounded-lg border border-input bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/60" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-muted-foreground mb-2">Preferred date</label>
+        <input [(ngModel)]="date" name="date" type="date" required class="w-full px-4 py-3 rounded-lg border border-input bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/60" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-muted-foreground mb-2">Preferred time</label>
+        <input [(ngModel)]="time" name="time" type="time" required class="w-full px-4 py-3 rounded-lg border border-input bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/60" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-muted-foreground mb-2">Notes</label>
+        <textarea [(ngModel)]="notes" name="notes" rows="3" class="w-full px-4 py-3 rounded-lg border border-input bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/60"></textarea>
+      </div>
+
+      <button type="submit" class="w-full btn-futuristic bg-primary text-primary-foreground py-3 rounded-lg font-semibold">Book appointment</button>
+    </form>
+  </div>
+</div>

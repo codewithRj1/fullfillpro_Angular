@@ -1,3 +1,54 @@
 :host {
     display: block;
 }
+
+.profile-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 12px);
+    width: 220px;
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: 14px;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.15);
+    padding: 8px;
+    z-index: 30;
+}
+
+.menu-item {
+    width: 100%;
+    text-align: left;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: transparent;
+    border: none;
+    color: hsl(var(--foreground));
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.menu-item:hover {
+    background: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+}
+
+.menu-item.danger {
+    color: hsl(var(--destructive));
+}
+
+.menu-item.danger:hover {
+    background: hsl(var(--destructive) / 0.1);
+}
+
+.menu-divider {
+    height: 1px;
+    background: hsl(var(--border));
+    margin: 6px 0;
+}
+
+.menu-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+}

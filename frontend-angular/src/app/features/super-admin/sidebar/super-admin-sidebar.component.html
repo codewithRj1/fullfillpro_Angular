@@ -1,0 +1,17 @@
+<aside class="sa-sidebar">
+    <div class="sa-brand">
+        <div class="sa-logo">SA</div>
+        <div>
+            <div class="sa-title">Super Admin</div>
+            <div class="sa-subtitle">Global Control</div>
+        </div>
+    </div>
+
+    <nav class="sa-nav">
+        <a *ngFor="let item of navItems" [routerLink]="item.path" routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: item.exact }" class="sa-link">
+            <lucide-icon [name]="item.icon" class="w-4 h-4"></lucide-icon>
+            <span>{{ item.label }}</span>
+        </a>
+    </nav>
+</aside>
