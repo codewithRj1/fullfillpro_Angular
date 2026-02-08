@@ -19,13 +19,15 @@ export interface LoginResponse {
 }
 
 export interface DecodedToken {
-  sub: string;
-  email: string;
-  role: string;
-  companyId: string;
-  userCode: string;
-  jti: string;
-  exp: number;
+  sub?: string;
+  email?: string;
+  role?: string | string[];
+  roles?: string | string[];
+  companyId?: string;
+  userCode?: string;
+  jti?: string;
+  exp?: number;
+  [key: string]: unknown;
 }
 
 export interface CurrentUser {
@@ -44,6 +46,7 @@ export interface SignupRequest {
   companyName: string;
   companyAddress: string;
   warehouseId: string;
+  role: string;
 }
 
 export interface SignupResponse {

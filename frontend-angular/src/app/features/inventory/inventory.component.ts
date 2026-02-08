@@ -2,7 +2,7 @@ import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
-import { ApiService } from '../../core/services/api.service';
+import { InventoryApi } from '../../core/apis/inventory.api';
 import { InventoryItem, Warehouse } from '../../core/models';
 
 @Component({
@@ -48,12 +48,12 @@ export class InventoryComponent implements OnInit {
         });
     });
 
-    constructor(private api: ApiService) { }
+    constructor(private inventoryApi: InventoryApi) { }
 
     ngOnInit() {
         this.loading.set(true);
         // ForkJoin would be ideal here but let's do sequential for simplicity or simple independent requests
-        this.api.getInventory().subscribe({
+        this.inventoryApi.getInventory().subscribe({
             next: (data) => {
                 this.inventory.set(data);
                 this.loading.set(false);
@@ -61,7 +61,7 @@ export class InventoryComponent implements OnInit {
             error: () => this.loading.set(false)
         });
 
-        this.api.getWarehouses().subscribe({
+        this.inventoryApi.getWarehouses().subscribe({
             next: (data) => this.warehouses.set(data)
         });
     }

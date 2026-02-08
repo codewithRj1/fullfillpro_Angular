@@ -12,6 +12,7 @@ import { AuthService } from '../../core/services/auth.service';
   styleUrls: ['./signup.component.css']
 })
 export class SignupComponent {
+  readonly defaultSignupRole = 'admin';
   fullName = '';
   companyName = '';
   companyAddress = '';
@@ -43,7 +44,8 @@ export class SignupComponent {
       email: this.email,
       mobileNumber: this.mobileNumber,
       password: this.password,
-      warehouseId: this.warehouseId
+      warehouseId: this.warehouseId,
+      role: this.defaultSignupRole
     }).subscribe({
       next: (response) => {
         this.loading.set(false);

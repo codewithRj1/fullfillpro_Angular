@@ -52,3 +52,31 @@
     inset: 0;
     z-index: 20;
 }
+
+.dashboard-command {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.dashboard-command-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1.1;
+}
+
+.dashboard-command-subtitle {
+    margin-top: 0.15rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.8rem;
+    color: hsl(var(--muted-foreground));
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

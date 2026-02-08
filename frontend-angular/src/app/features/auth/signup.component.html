@@ -24,10 +24,10 @@
   <div class="auth-card">
     <div class="auth-tabs">
       <a class="tab" routerLink="/login">
-        <span class="tab-icon">↗</span> Login
+        <span class="tab-icon">-></span> Login
       </a>
       <button class="tab active" type="button">
-        <span class="tab-icon">👤</span> Sign Up
+        <span class="tab-icon">+</span> Sign Up
       </button>
     </div>
 
@@ -107,9 +107,14 @@
         <input [(ngModel)]="warehouseId" name="warehouseId" required placeholder="Enter warehouse ID" [disabled]="loading()" />
       </label>
 
+      <div class="field">
+        <span class="field-label">Default role for signup</span>
+        <div class="role-chip">{{ defaultSignupRole }}</div>
+      </div>
+
       <button type="submit" class="primary-btn" [disabled]="loading()">
-        <span class="btn-icon" *ngIf="!loading()">👤</span>
-        <span *ngIf="loading()">…</span>
+        <span class="btn-icon" *ngIf="!loading()">+</span>
+        <span *ngIf="loading()">...</span>
         {{ loading() ? 'Creating account' : 'Create account' }}
       </button>
     </form>

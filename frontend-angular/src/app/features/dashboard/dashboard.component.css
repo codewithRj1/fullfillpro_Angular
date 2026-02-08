@@ -1,3 +1,51 @@
 :host {
     display: block;
 }
+
+.dashboard-tabs {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+}
+
+.dashboard-tab {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+.sub-tabs {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    padding: 0.4rem 0.5rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+}
+
+.sub-tab {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+.dashboard-tabs::-webkit-scrollbar {
+    height: 6px;
+}
+
+.dashboard-tabs::-webkit-scrollbar-thumb {
+    background: rgba(96, 124, 255, 0.4);
+    border-radius: 9999px;
+}
+
+.sub-tabs::-webkit-scrollbar {
+    height: 5px;
+}
+
+.sub-tabs::-webkit-scrollbar-thumb {
+    background: rgba(120, 130, 160, 0.35);
+    border-radius: 9999px;
+}

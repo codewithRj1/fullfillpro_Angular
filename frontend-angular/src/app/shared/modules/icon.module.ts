@@ -55,7 +55,8 @@ import {
     Shirt,
     UserCog,
     Sparkles,
-    User
+    User,
+    Cpu
 } from 'lucide-angular';
 
 const icons = {
@@ -113,7 +114,8 @@ const icons = {
     Shirt,
     UserCog,
     Sparkles,
-    User
+    User,
+    Cpu
 };
 
 @NgModule({

@@ -1,9 +1,12 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ApiService } from '../../core/services/api.service';
 import { Warehouse, Carrier, MarketplaceConnection, Marketplace } from '../../core/models';
 import { IconModule } from '../../shared/modules/icon.module';
+import { ToastService } from '../../core/services/toast.service';
+import { InventoryApi } from '../../core/apis/inventory.api';
+import { MarketplaceApi } from '../../core/apis/marketplace.api';
+import { ShippingApi } from '../../core/apis/shipping.api';
 
 @Component({
     selector: 'app-store-setup',
@@ -63,9 +66,19 @@ export class StoreSetupComponent implements OnInit {
     formAwsSecret = signal('');
     formLocationId = signal('');
     connecting = signal(false);
+    flipkartDialogOpen = signal(false);
+    flipkartLoginUrl = signal('');
+    flipkartCode = signal('');
+    flipkartState = signal('');
+    private flipkartLoginWindow: Window | null = null;
 
 
-    constructor(private api: ApiService) { }
+    constructor(
+        private inventoryApi: InventoryApi,
+        private shippingApi: ShippingApi,
+        private marketplaceApi: MarketplaceApi,
+        private toast: ToastService
+    ) { }
 
     ngOnInit() {
         this.loadData();
@@ -74,7 +87,7 @@ export class StoreSetupComponent implements OnInit {
     loadData() {
         this.loading.set(true);
 
-        this.api.getWarehouses().subscribe({
+        this.inventoryApi.getWarehouses().subscribe({
             next: (data) => {
                 this.warehouses.set(data);
                 this.loading.set(false);
@@ -82,13 +95,13 @@ export class StoreSetupComponent implements OnInit {
             error: () => this.loading.set(false)
         });
 
-        this.api.getCarriers().subscribe({
+        this.shippingApi.getCarriers().subscribe({
             next: (data) => this.carriers.set(data),
             error: () => { }
         });
 
         // Load marketplace connections
-        this.api.getMarketplaceConnections().subscribe({
+        this.marketplaceApi.getMarketplaceConnections().subscribe({
             next: (data) => this.marketplaceConnections.set(data),
             error: () => { }
         });
@@ -115,27 +128,96 @@ export class StoreSetupComponent implements OnInit {
         }
     }
 
-    connectMarketplace() {
-        // Validation
-        const mkp = this.connectingMarketplace();
-        const baseValid = !!this.formStoreName() && !!this.formAppKey() && !!this.formAppSecret();
-
-        let valid = baseValid;
-        // Amazon additional fields are now optional as per user request
-        /*
-        if (mkp?.id.startsWith('amazon')) {
-            valid = baseValid && !!this.formRefreshToken() && !!this.formAwsAccessKey() && !!this.formAwsSecret();
+    openFlipkartConnectDialog(marketplace: { id: string; name: string; country: string; icon: string; color: string } | null) {
+        if (!marketplace) {
+            return;
         }
-        */
 
-        if (!valid) {
-            alert('Please fill all required fields');
+        this.connectingMarketplace.set(marketplace);
+        this.flipkartCode.set('');
+        this.flipkartState.set('');
+        this.flipkartLoginUrl.set('');
+        this.connecting.set(true);
+
+        this.marketplaceApi.getFlipkartConnectUrl().subscribe({
+            next: (response) => {
+                const loginUrl = this.extractFlipkartUrl(response);
+                this.connecting.set(false);
+                this.connectDialogOpen.set(false);
+                this.flipkartLoginUrl.set(loginUrl);
+                this.flipkartDialogOpen.set(true);
+
+                if (loginUrl) {
+                    this.flipkartLoginWindow = window.open(loginUrl, '_blank', 'noopener,noreferrer,width=900,height=700');
+                }
+            },
+            error: () => {
+                this.connecting.set(false);
+                this.flipkartDialogOpen.set(true);
+            }
+        });
+    }
+
+    connectFlipkartNow() {
+        const code = this.flipkartCode().trim();
+        const state = this.flipkartState().trim();
+
+        if (!code || !state) {
+            this.toast.error('Code and state are required');
             return;
         }
 
         this.connecting.set(true);
+        this.marketplaceApi.completeFlipkartCallback({ code, state }).subscribe({
+            next: (response) => {
+                this.connecting.set(false);
+                if (response.success) {
+                    this.flipkartDialogOpen.set(false);
+                    if (this.flipkartLoginWindow && !this.flipkartLoginWindow.closed) {
+                        this.flipkartLoginWindow.close();
+                    }
+                    this.flipkartLoginWindow = null;
+                    this.loadData();
+                }
+            },
+            error: () => {
+                this.connecting.set(false);
+            }
+        });
+    }
 
-        const mkpId = mkp?.id || '';
+    openFlipkartLogin() {
+        const loginUrl = this.flipkartLoginUrl();
+        if (!loginUrl) {
+            return;
+        }
+
+        this.flipkartLoginWindow = window.open(loginUrl, '_blank', 'noopener,noreferrer,width=900,height=700');
+    }
+
+    private extractFlipkartUrl(response: { loginUrl?: string; url?: string } | string): string {
+        if (typeof response === 'string') {
+            return response;
+        }
+
+        return response.loginUrl || response.url || '';
+    }
+
+    connectMarketplace() {
+        // Validation
+        const valid = !!this.formStoreName().trim();
+        if (!valid) {
+            this.toast.error('Store/Seller Name is required');
+            return;
+        }
+
+        const mkpId = this.connectingMarketplace()?.id || '';
+        if (mkpId === 'flipkart') {
+            this.openFlipkartConnectDialog(this.connectingMarketplace());
+            return;
+        }
+
+        this.connecting.set(true);
         const payload = {
             marketplaceName: mkpId.includes('amazon') ? 'amazon' : mkpId,
             storeName: this.formStoreName(),
@@ -148,20 +230,16 @@ export class StoreSetupComponent implements OnInit {
             locationId: this.formLocationId()
         };
 
-        this.api.connectMarketplace(payload).subscribe({
+        this.marketplaceApi.connectMarketplace(payload).subscribe({
             next: (response: any) => {
                 this.connecting.set(false);
                 if (response.success) {
-                    alert(`Successfully connected to ${payload.marketplaceName}!`);
                     this.connectDialogOpen.set(false);
                     this.loadData(); // Refresh connections
-                } else {
-                    alert(`Connection failed: ${response.message}`);
                 }
             },
-            error: (err: any) => {
+            error: () => {
                 this.connecting.set(false);
-                alert(`Error: ${err.message || 'Connection failed'}`);
             }
         });
     }
@@ -169,13 +247,13 @@ export class StoreSetupComponent implements OnInit {
     syncMarketplace(marketplaceId: string) {
         const connection = this.getMarketplaceConnection(marketplaceId);
         if (!connection.isActive) {
-            alert('Please connect this marketplace first');
+            this.toast.error('Please connect this marketplace first');
             return;
         }
 
         // In real implementation, would get connectionId from API
         console.log('Syncing marketplace:', marketplaceId);
-        alert('Sync functionality will be implemented once connected!');
+        this.toast.info('Sync functionality will be implemented once connected!');
     }
 
     saveGSTConfig() {
@@ -193,12 +271,13 @@ export class StoreSetupComponent implements OnInit {
     }
 
     getMarketplaceConnection(marketplaceId: string) {
+        debugger;
 
         const connections = this.marketplaceConnections();
         const connection = connections.find(c => {
             // Mapping frontend IDs to backend Marketplace enum
             if (marketplaceId === 'amazon_in' && c.marketplace === 'amazon') return true;
-            if (marketplaceId === 'flipkart' && c.marketplace === 'flipkart') return true;
+            if (marketplaceId === 'flipkart' && c.marketplace.toString() ==="1" ) return true;
             return false;
         });
 

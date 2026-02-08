@@ -1,7 +1,7 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ApiService } from '../../core/services/api.service';
+import { InventoryApi } from '../../core/apis/inventory.api';
 import { PurchaseOrder } from '../../core/models';
 import { IconModule } from '../../shared/modules/icon.module';
 
@@ -33,10 +33,10 @@ export class PurchaseOrdersComponent implements OnInit {
         });
     });
 
-    constructor(private api: ApiService) { }
+    constructor(private inventoryApi: InventoryApi) { }
 
     ngOnInit() {
-        this.api.getPurchaseOrders().subscribe({
+        this.inventoryApi.getPurchaseOrders().subscribe({
             next: (data) => {
                 this.purchaseOrders.set(data);
                 this.loading.set(false);

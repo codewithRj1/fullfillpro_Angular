@@ -98,8 +98,10 @@
                         </td>
                         <td class="px-4 py-3">
                             <div class="flex flex-wrap gap-1">
-                                <app-marketplace-badge *ngFor="let m of product.marketplaceListings"
-                                    [marketplace]="m.marketplace" [status]="m.status"></app-marketplace-badge>
+                                <!-- TODO: Re-enable marketplaceListings loop when multi-marketplace data is available -->
+                                <app-marketplace-badge
+                                    [marketplace]="resolveMarketplaceName(product.marketplaceOrigin)"
+                                    [status]="'live'"></app-marketplace-badge>
                             </div>
                         </td>
                         <td class="px-4 py-3 text-center">
@@ -181,6 +183,30 @@
                 <button type="button" class="ghost-btn" (click)="closeImportDialog()">Cancel</button>
                 <button type="button" class="primary-btn" (click)="submitImport()">Import products</button>
             </div>
+
+            <div class="h-px bg-border/50 my-2"></div>
+
+            <div class="space-y-2">
+                <p class="text-sm font-medium">Import from marketplace</p>
+                <select
+                    class="w-full px-3 py-2 bg-muted/30 border border-border/50 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary/50 transition-all"
+                    [ngModel]="selectedImportStoreId()" (ngModelChange)="selectedImportStoreId.set($event)"
+                    [disabled]="activeStores().length === 0 || importingMarketplace()">
+                    <option value="">Select active store</option>
+                    <option *ngFor="let store of activeStores()" [value]="store.id">
+                        {{ getStoreLabel(store) }}
+                    </option>
+                </select>
+                <p class="text-xs text-muted-foreground" *ngIf="activeStores().length === 0">
+                    No active marketplace stores found.
+                </p>
+                <div class="modal-footer">
+                    <button type="button" class="primary-btn" (click)="importFromMarketplace()"
+                        [disabled]="!selectedImportStoreId() || importingMarketplace()">
+                        {{ importingMarketplace() ? 'Importing...' : 'Import from marketplace' }}
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -190,8 +216,8 @@
     <div class="modal-card" (click)="$event.stopPropagation()">
         <div class="modal-header">
             <div>
-                <h2 class="text-xl font-display font-bold">Add Product</h2>
-                <p class="text-sm text-muted-foreground">Create a new product and track inventory</p>
+                <h2 class="text-xl font-display font-bold">{{ isEditing() ? 'Edit Product' : 'Add Product' }}</h2>
+                <p class="text-sm text-muted-foreground">{{ isEditing() ? 'Update product details and inventory' : 'Create a new product and track inventory' }}</p>
             </div>
             <button class="icon-button" (click)="closeAddProduct()">
                 <lucide-icon name="x" class="w-4 h-4"></lucide-icon>
@@ -211,24 +237,185 @@
                 </label>
 
                 <label class="field">
-                    <span class="field-label">Purchase price</span>
-                    <input [(ngModel)]="purchasePrice" name="purchasePrice" type="number" required placeholder="450" />
+                    <span class="field-label">HSN code</span>
+                    <input [(ngModel)]="hsnCode" name="hsnCode" placeholder="6109" />
                 </label>
 
                 <label class="field">
-                    <span class="field-label">Shipment cost</span>
-                    <input [(ngModel)]="shipmentCost" name="shipmentCost" type="number" required placeholder="40" />
+                    <span class="field-label">Category</span>
+                    <input [(ngModel)]="category" name="category" placeholder="Apparel" />
                 </label>
 
                 <label class="field">
-                    <span class="field-label">Selling price</span>
-                    <input [(ngModel)]="sellingPrice" name="sellingPrice" type="number" required placeholder="899" />
+                    <span class="field-label">Brand</span>
+                    <input [(ngModel)]="brand" name="brand" placeholder="Brand name" />
                 </label>
 
                 <label class="field">
-                    <span class="field-label">Inventory</span>
-                    <input [(ngModel)]="inventory" name="inventory" type="number" required placeholder="120" />
+                    <span class="field-label">Barcode</span>
+                    <input [(ngModel)]="barcode" name="barcode" placeholder="8901234567890" />
                 </label>
+
+                <label class="field span-2">
+                    <span class="field-label">Description</span>
+                    <textarea [(ngModel)]="description" name="description" rows="3"
+                        placeholder="Enter product details"></textarea>
+                </label>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <div>
+                        <h3 class="section-title">Pricing</h3>
+                        <p class="section-subtitle">All pricing fields from create product DTO</p>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <label class="field">
+                        <span class="field-label">Purchase price</span>
+                        <input [(ngModel)]="purchasePrice" name="purchasePrice" type="number" required placeholder="450" />
+                    </label>
+
+                    <label class="field">
+                        <span class="field-label">Packaging cost</span>
+                        <input [(ngModel)]="packagingCost" name="packagingCost" type="number" placeholder="20" />
+                    </label>
+
+                    <label class="field">
+                        <span class="field-label">Shipping cost</span>
+                        <input [(ngModel)]="shippingCost" name="shippingCost" type="number" placeholder="40" />
+                    </label>
+
+                    <label class="field">
+                        <span class="field-label">Other cost</span>
+                        <input [(ngModel)]="otherCost" name="otherCost" type="number" placeholder="10" />
+                    </label>
+
+                    <label class="field">
+                        <span class="field-label">Selling price</span>
+                        <input [(ngModel)]="sellingPrice" name="sellingPrice" type="number" required placeholder="899" />
+                    </label>
+
+                    <label class="field">
+                        <span class="field-label">MRP</span>
+                        <input [(ngModel)]="mrp" name="mrp" type="number" required placeholder="999" />
+                    </label>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <div>
+                        <h3 class="section-title">Inventory & Physical</h3>
+                        <p class="section-subtitle">Stock, returns, and dimensions</p>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <label class="field">
+                        <span class="field-label">Total inventory</span>
+                        <input [(ngModel)]="inventory" name="inventory" type="number" required placeholder="120" />
+                    </label>
+
+                    <label class="field">
+                        <span class="field-label">Sold quantity</span>
+                        <input [(ngModel)]="soldQuantity" name="soldQuantity" type="number" placeholder="0" />
+                    </label>
+
+                    <label class="field">
+                        <span class="field-label">Return quantity</span>
+                        <input [(ngModel)]="returnQuantity" name="returnQuantity" type="number" placeholder="0" />
+                    </label>
+
+                    <label class="field">
+                        <span class="field-label">Pending return quantity</span>
+                        <input [(ngModel)]="pendingReturnQuantity" name="pendingReturnQuantity" type="number"
+                            placeholder="0" />
+                    </label>
+
+                    <label class="field">
+                        <span class="field-label">Damaged quantity</span>
+                        <input [(ngModel)]="damagedQuantity" name="damagedQuantity" type="number" placeholder="0" />
+                    </label>
+
+                    <label class="field">
+                        <span class="field-label">Weight</span>
+                        <input [(ngModel)]="weight" name="weight" type="number" placeholder="0.5" />
+                    </label>
+
+                    <label class="field">
+                        <span class="field-label">Length</span>
+                        <input [(ngModel)]="length" name="length" type="number" placeholder="12" />
+                    </label>
+
+                    <label class="field">
+                        <span class="field-label">Width</span>
+                        <input [(ngModel)]="width" name="width" type="number" placeholder="8" />
+                    </label>
+
+                    <label class="field">
+                        <span class="field-label">Height</span>
+                        <input [(ngModel)]="height" name="height" type="number" placeholder="2" />
+                    </label>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <div>
+                        <h3 class="section-title">Marketplace</h3>
+                        <p class="section-subtitle">Origin and marketplace specific prices</p>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <label class="field">
+                        <span class="field-label">Marketplace origin</span>
+                        <input [(ngModel)]="marketplaceOrigin" name="marketplaceOrigin"
+                            placeholder="amazon/flipkart/meesho..." />
+                    </label>
+
+                    <label class="field">
+                        <span class="field-label">Amazon price</span>
+                        <input [(ngModel)]="amazonPrice" name="amazonPrice" type="number" placeholder="0" />
+                    </label>
+
+                    <label class="field">
+                        <span class="field-label">Flipkart price</span>
+                        <input [(ngModel)]="flipkartPrice" name="flipkartPrice" type="number" placeholder="0" />
+                    </label>
+
+                    <label class="field">
+                        <span class="field-label">Meesho price</span>
+                        <input [(ngModel)]="meeshoPrice" name="meeshoPrice" type="number" placeholder="0" />
+                    </label>
+
+                    <label class="field">
+                        <span class="field-label">Ajio price</span>
+                        <input [(ngModel)]="ajioPrice" name="ajioPrice" type="number" placeholder="0" />
+                    </label>
+
+                    <label class="field">
+                        <span class="field-label">Myntra price</span>
+                        <input [(ngModel)]="myntraPrice" name="myntraPrice" type="number" placeholder="0" />
+                    </label>
+
+                    <label class="field">
+                        <span class="field-label">Tatacliq price</span>
+                        <input [(ngModel)]="tatacliqPrice" name="tatacliqPrice" type="number" placeholder="0" />
+                    </label>
+
+                    <label class="field">
+                        <span class="field-label">Jiomart price</span>
+                        <input [(ngModel)]="jiomartPrice" name="jiomartPrice" type="number" placeholder="0" />
+                    </label>
+
+                    <label class="toggle">
+                        <input type="checkbox" [(ngModel)]="isActive" name="isActive" />
+                        <span>Product is active</span>
+                    </label>
+                </div>
             </div>
 
             <div class="section">
@@ -242,14 +429,14 @@
                     </button>
                 </div>
 
-                <div class="image-grid" *ngIf="images.length > 0">
-                    <div class="image-card" *ngFor="let img of images; let i = index">
-                        <img [src]="img" alt="Product image">
+                <div class="image-grid" *ngIf="imageItems.length > 0">
+                    <div class="image-card" *ngFor="let img of imageItems; let i = index">
+                        <img [src]="img.preview" alt="Product image">
                         <button type="button" class="remove-image" (click)="removeImage(i)">Remove</button>
                     </div>
                 </div>
 
-                <div class="empty-note" *ngIf="images.length === 0">
+                <div class="empty-note" *ngIf="imageItems.length === 0">
                     No images added yet.
                 </div>
             </div>
@@ -285,7 +472,7 @@
 
             <div class="modal-footer">
                 <button type="button" class="ghost-btn" (click)="closeAddProduct()">Cancel</button>
-                <button type="submit" class="primary-btn">Create product</button>
+                <button type="submit" class="primary-btn">{{ isEditing() ? 'Update product' : 'Create product' }}</button>
             </div>
         </form>
     </div>
@@ -316,9 +503,9 @@
                 <button type="button" class="secondary-btn" (click)="addImageUrl()">Add URL</button>
             </div>
 
-            <div class="image-grid" *ngIf="images.length > 0">
-                <div class="image-card" *ngFor="let img of images; let i = index">
-                    <img [src]="img" alt="Product image">
+            <div class="image-grid" *ngIf="imageItems.length > 0">
+                <div class="image-card" *ngFor="let img of imageItems; let i = index">
+                    <img [src]="img.preview" alt="Product image">
                     <button type="button" class="remove-image" (click)="removeImage(i)">Remove</button>
                 </div>
             </div>

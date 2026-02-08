@@ -1,10 +1,11 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ApiService } from '../../core/services/api.service';
+import { InventoryApi } from '../../core/apis/inventory.api';
 import { Warehouse, PurchaseOrder } from '../../core/models';
 import { IconModule } from '../../shared/modules/icon.module';
 import { Column } from '../../shared/components/data-table/data-table.component';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
     selector: 'app-warehouses',
@@ -78,7 +79,7 @@ export class WarehousesComponent implements OnInit {
         { key: 'actions', label: '', sortable: false }
     ];
 
-    constructor(private api: ApiService) { }
+    constructor(private inventoryApi: InventoryApi, private toast: ToastService) { }
 
     ngOnInit() {
         this.loadData();
@@ -86,7 +87,7 @@ export class WarehousesComponent implements OnInit {
 
     loadData() {
         this.loading.set(true);
-        this.api.getWarehouses().subscribe({
+        this.inventoryApi.getWarehouses().subscribe({
             next: (data) => {
                 this.warehouses.set(data);
                 this.loading.set(false);
@@ -94,7 +95,7 @@ export class WarehousesComponent implements OnInit {
             error: () => this.loading.set(false)
         });
 
-        this.api.getPurchaseOrders().subscribe({
+        this.inventoryApi.getPurchaseOrders().subscribe({
             next: (data) => this.purchaseOrders.set(data),
             error: () => { }
         });
@@ -134,7 +135,7 @@ export class WarehousesComponent implements OnInit {
 
     handleSave() {
         if (!this.formName() || !this.formAddress() || !this.formCity() || !this.formState() || !this.formPinCode()) {
-            alert('Please fill in all required fields');
+            this.toast.error('Please fill in all required fields');
             return;
         }
 
@@ -152,22 +153,20 @@ export class WarehousesComponent implements OnInit {
 
         const editing = this.editingWarehouse();
         if (editing) {
-            this.api.updateWarehouse(editing.id, warehouseData).subscribe({
+            this.inventoryApi.updateWarehouse(editing.id, warehouseData).subscribe({
                 next: () => {
                     this.loadData();
                     this.dialogOpen.set(false);
                     this.resetForm();
-                },
-                error: () => alert('Failed to update warehouse')
+                }
             });
         } else {
-            this.api.createWarehouse(warehouseData).subscribe({
+            this.inventoryApi.createWarehouse(warehouseData).subscribe({
                 next: () => {
                     this.loadData();
                     this.dialogOpen.set(false);
                     this.resetForm();
-                },
-                error: () => alert('Failed to create warehouse')
+                }
             });
         }
     }
@@ -187,12 +186,12 @@ export class WarehousesComponent implements OnInit {
         const po = this.selectedPO();
         const whId = this.receivingWarehouse();
         if (!po || !whId) {
-            alert('Please select a warehouse');
+            this.toast.error('Please select a warehouse');
             return;
         }
 
         // In real implementation, call API to receive PO items
-        alert(`Received items for PO ${po.poNo} at warehouse`);
+        this.toast.success(`Received items for PO ${po.poNo} at warehouse`);
         this.receivingDialogOpen.set(false);
         this.selectedPO.set(null);
     }

@@ -1,7 +1,7 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ApiService } from '../../core/services/api.service';
+import { InventoryApi } from '../../core/apis/inventory.api';
 import { Vendor } from '../../core/models';
 import { IconModule } from '../../shared/modules/icon.module';
 
@@ -26,7 +26,7 @@ export class VendorsComponent implements OnInit {
         );
     });
 
-    constructor(private api: ApiService) { }
+    constructor(private inventoryApi: InventoryApi) { }
 
     ngOnInit() {
         this.loadData();
@@ -34,7 +34,7 @@ export class VendorsComponent implements OnInit {
 
     loadData() {
         this.loading.set(true);
-        this.api.getVendors().subscribe({
+        this.inventoryApi.getVendors().subscribe({
             next: (data) => {
                 this.vendors.set(data);
                 this.loading.set(false);

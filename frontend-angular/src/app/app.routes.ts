@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
     { path: 'login', loadComponent: () => import('./features/auth/login.component').then(m => m.LoginComponent) },
@@ -7,6 +8,8 @@ export const routes: Routes = [
     { path: 'book-appointment', loadComponent: () => import('./features/book-appointment/book-appointment.component').then(m => m.BookAppointmentComponent) },
     {
         path: 'super-admin',
+        canActivate: [authGuard],
+        data: { roles: ['admin', 'super_admin'] },
         loadComponent: () => import('./features/super-admin/layout/super-admin-layout.component').then(m => m.SuperAdminLayoutComponent),
         children: [
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -31,6 +34,7 @@ export const routes: Routes = [
     {
         path: '',
         component: MainLayoutComponent,
+        canActivate: [authGuard],
         children: [
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
             // Modules will be lazy loaded here

@@ -1,56 +1,31 @@
-<div class="space-y-6 page-enter">
-    <!-- Header with futuristic styling -->
-    <div class="flex flex-col gap-2 relative">
-        <div class="flex items-center gap-4">
-            <div
-                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary via-info to-primary flex items-center justify-center shadow-glow-md relative overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-t from-transparent to-white/20"></div>
-                <lucide-icon name="bot" class="w-7 h-7 text-white relative z-10"></lucide-icon>
-                <div
-                    class="absolute -bottom-1 -right-1 w-4 h-4 bg-success rounded-full border-2 border-background animate-pulse">
-                </div>
-            </div>
-            <div>
-                <div class="flex items-center gap-2">
-                    <h1 class="text-3xl font-display font-bold tracking-wide">
-                        COMMAND <span class="text-gradient">CENTER</span>
-                    </h1>
-                    <lucide-icon name="cpu" class="w-5 h-5 text-primary animate-pulse"></lucide-icon>
-                </div>
-                <p class="text-muted-foreground flex items-center gap-2">
-                    <lucide-icon name="sparkles" class="w-4 h-4 text-primary"></lucide-icon>
-                    AI-Powered Analytics & Real-Time Insights
-                </p>
-            </div>
-        </div>
-
-        <!-- Cyber decorative line with animation -->
-        <div class="relative mt-4 h-px">
-            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
-            <div class="absolute left-0 top-0 w-20 h-px bg-gradient-to-r from-primary to-transparent animate-pulse">
-            </div>
-            <div class="absolute right-0 top-0 w-20 h-px bg-gradient-to-l from-info to-transparent animate-pulse"></div>
-        </div>
-    </div>
-
-    <!-- Main Tabs (Custom Implementation replicating Radix Tabs) -->
-    <div class="space-y-6">
-        <div class="glass-card border border-primary/20 h-auto flex flex-wrap gap-1.5 p-2 rounded-2xl">
-            <button *ngFor="let tab of tabs" (click)="setActiveTab(tab.id)" [class]="'relative gap-2 px-5 py-3 rounded-xl font-medium transition-all duration-500 group overflow-hidden flex items-center ' + 
-        (activeTab() === tab.id 
+<div class="space-y-4 page-enter">
+    <div class="space-y-4">
+        <div class="dashboard-tabs glass-card border border-primary/20 rounded-xl">
+            <button *ngFor="let tab of mainTabs" (click)="setActiveMainTab(tab.id)" [class]="'dashboard-tab relative gap-2 px-3.5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 group overflow-hidden flex items-center ' + 
+        (activeMainTab() === tab.id 
           ? 'bg-gradient-to-r from-primary to-info text-primary-foreground shadow-glow-sm' 
           : 'hover:bg-accent/50 text-muted-foreground hover:text-foreground')">
                 <div
                     class="absolute inset-0 bg-gradient-to-r from-primary/10 to-info/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 </div>
                 <lucide-icon [name]="tab.icon" class="w-4 h-4 relative z-10"></lucide-icon>
-                <span class="hidden sm:inline relative z-10">{{ tab.label }}</span>
+                <span class="relative z-10">{{ tab.label }}</span>
+            </button>
+        </div>
+
+        <div *ngIf="getSubTabs().length > 0" class="sub-tabs glass-card border border-border/50 rounded-xl">
+            <button *ngFor="let tab of getSubTabs()" (click)="setActiveSubTab(tab.id)" [class]="'sub-tab relative gap-2 px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-all duration-200 group overflow-hidden flex items-center ' + 
+        (activeSubTab() === tab.id 
+          ? 'bg-primary/15 text-primary border border-primary/30' 
+          : 'hover:bg-accent/40 text-muted-foreground hover:text-foreground border border-transparent')">
+                <lucide-icon [name]="tab.icon" class="w-3.5 h-3.5 relative z-10"></lucide-icon>
+                <span class="relative z-10">{{ tab.label }}</span>
             </button>
         </div>
 
         <!-- Tab Content -->
         <div class="tab-content-enter">
-            <ng-container [ngSwitch]="activeTab()">
+            <ng-container [ngSwitch]="getCurrentTabId()">
 
                 <!-- Business Overview Tab -->
                 <div *ngSwitchCase="'overview'" class="space-y-8">

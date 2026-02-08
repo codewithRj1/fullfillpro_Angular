@@ -2,10 +2,12 @@ import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
-import { ApiService } from '../../core/services/api.service';
+import { MarketplaceApi } from '../../core/apis/marketplace.api';
+import { OrdersApi } from '../../core/apis/orders.api';
 import { Order } from '../../core/models';
 import { MarketplaceBadgeComponent } from '../../shared/components/marketplace-badge/marketplace-badge.component';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
     selector: 'app-orders',
@@ -29,6 +31,15 @@ export class OrdersComponent implements OnInit {
     loading = signal(true);
 
     marketplaces = ['amazon', 'flipkart', 'meesho', 'ajio', 'myntra', 'tatacliq', 'jiomart'];
+    private readonly marketplaceIdMap: Record<string, number> = {
+        flipkart: 1,
+        amazon: 2,
+        meesho: 3,
+        ajio: 4,
+        myntra: 5,
+        tatacliq: 6,
+        jiomart: 7
+    };
 
     statusTabs = computed(() => {
         const all = this.orders();
@@ -62,7 +73,7 @@ export class OrdersComponent implements OnInit {
     // Connections
     connections: any[] = [];
 
-    constructor(private api: ApiService) { }
+    constructor(private ordersApi: OrdersApi, private marketplaceApi: MarketplaceApi, private toast: ToastService) { }
 
     ngOnInit() {
         this.loadData();
@@ -71,7 +82,7 @@ export class OrdersComponent implements OnInit {
     loadData() {
         this.loading.set(true);
         // Load Orders
-        this.api.getOrders().subscribe({
+        this.ordersApi.getOrders().subscribe({
             next: (data) => {
                 this.orders.set(data);
                 this.loading.set(false);
@@ -80,7 +91,7 @@ export class OrdersComponent implements OnInit {
         });
 
         // Load Connections to map marketplace -> connectionId
-        this.api.getMarketplaceConnections().subscribe({
+        this.marketplaceApi.getMarketplaceConnections().subscribe({
             next: (data) => this.connections = data,
             error: (err) => console.error('Failed to load connections', err)
         });
@@ -104,44 +115,40 @@ export class OrdersComponent implements OnInit {
     generateLabel(order: Order) {
         const connectionId = this.getConnectionId(order.marketplace);
         if (!connectionId) {
-            alert(`No active connection found for ${order.marketplace}`);
+            this.toast.error(`No active connection found for ${order.marketplace}`);
             return;
         }
 
         // Use marketplaceOrderId as shipmentId for Flipkart
-        this.api.generateLabel(connectionId, order.marketplaceOrderId).subscribe({
-            next: (res) => {
-                alert('Label generated successfully!');
+        this.marketplaceApi.generateLabel(connectionId, order.marketplaceOrderId).subscribe({
+            next: () => {
                 // refresh or update order status locally
-            },
-            error: (err) => alert('Failed to generate label')
+            }
         });
     }
 
     dispatchOrder(order: Order) {
         const connectionId = this.getConnectionId(order.marketplace);
         if (!connectionId) {
-            alert(`No active connection found for ${order.marketplace}`);
+            this.toast.error(`No active connection found for ${order.marketplace}`);
             return;
         }
 
-        this.api.dispatchShipment(connectionId, order.marketplaceOrderId).subscribe({
-            next: (res) => {
-                alert('Order dispatched successfully!');
+        this.marketplaceApi.dispatchShipment(connectionId, order.marketplaceOrderId).subscribe({
+            next: () => {
                 this.loadData();
-            },
-            error: (err) => alert('Failed to dispatch order')
+            }
         });
     }
 
     downloadInvoice(order: Order) {
         const connectionId = this.getConnectionId(order.marketplace);
         if (!connectionId) {
-            alert(`No active connection found for ${order.marketplace}`);
+            this.toast.error(`No active connection found for ${order.marketplace}`);
             return;
         }
 
-        this.api.getInvoice(connectionId, order.marketplaceOrderId).subscribe({
+        this.marketplaceApi.getInvoice(connectionId, order.marketplaceOrderId).subscribe({
             next: (blob) => {
                 const url = window.URL.createObjectURL(blob);
                 const link = document.createElement('a');
@@ -149,47 +156,30 @@ export class OrdersComponent implements OnInit {
                 link.download = `invoice_${order.orderNo}.pdf`;
                 link.click();
                 window.URL.revokeObjectURL(url);
-            },
-            error: (err) => alert('Failed to download invoice')
+            }
         });
     }
 
     syncOrders() {
-        // Find Flipkart connection
-        const flipkart = this.connections.find(c => c.marketplace.toLowerCase() === 'flipkart' && c.isActive);
-        if (!flipkart) {
-            alert('Please connect Flipkart first in Store Setup');
+        const selectedMarketplace = this.marketplaceFilter().toLowerCase();
+        const marketplaceId = selectedMarketplace === 'all'
+            ? 0
+            : (this.marketplaceIdMap[selectedMarketplace] ?? -1);
+
+        if (marketplaceId < 0) {
+            this.toast.error('Invalid marketplace selected');
             return;
         }
 
         this.loading.set(true);
-        const fromDate = new Date();
-        fromDate.setDate(fromDate.getDate() - 7); // Last 7 days
-        const toDate = new Date();
-
-        this.api.searchMarketplaceOrders(flipkart.id, fromDate, toDate).subscribe({
+        this.marketplaceApi.getMarketplaceOrders(marketplaceId).subscribe({
             next: (res) => {
-                if (res.success) {
-                    alert(`Sync Complete! Found ${res.shipments.length} orders.`);
-                    // Ideally we would save these to DB and reload. 
-                    // For now, reloading calls getOrders() which fetches from DB.
-                    // If backend SearchOrders doesn't save to DB, we need to handle that.
-                    // But usually "Import" implies saving.
-                    // Assuming SearchOrdersResult just returns data, we might need a separate "Import" command 
-                    // or SearchOrder handler should save. 
-                    // Given the prompt "import order", we should ensure saving.
-                    // Current SearchOrdersCommand just returns DTOs.
-                    // Let's assume for this MVP we just display valid sync or reload based on what backend does.
-                    // If backend doesn't save, we should alert user.
-                    // "Found X orders" is good feedback.
-                    this.loadData();
-                } else {
-                    alert(`Sync Failed: ${res.message}`);
-                }
+                const orderCount = res.orders?.length ?? 0;
+                this.loadData();
+                this.toast.success(`Sync complete. Found ${orderCount} orders.`);
                 this.loading.set(false);
             },
-            error: (err) => {
-                alert('Sync failed');
+            error: () => {
                 this.loading.set(false);
             }
         });

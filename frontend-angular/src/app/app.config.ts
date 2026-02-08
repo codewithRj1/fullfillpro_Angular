@@ -5,12 +5,13 @@ import { LucideAngularModule, LayoutDashboard, Package, ShoppingCart, Warehouse,
 
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { apiFeedbackInterceptor } from './core/interceptors/api-feedback.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(withInterceptors([apiFeedbackInterceptor, authInterceptor])),
     importProvidersFrom(LucideAngularModule.pick({
       LayoutDashboard, Package, ShoppingCart, Warehouse, Users, Settings, LogOut, Menu, Search, Bell, ChevronDown, Check, X, Filter, Plus, Trash2, Edit
     }))

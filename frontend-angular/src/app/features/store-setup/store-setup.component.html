@@ -274,17 +274,17 @@
                 <label class="block text-sm font-medium mb-1">Store/Seller Name *</label>
                 <input [(ngModel)]="formStoreName" type="text" placeholder="My Store Name"
                     class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-primary">
-                <p class="text-xs text-muted-foreground mt-1">Your shop/seller display name</p>
+                <p class="text-xs text-muted-foreground mt-1">Your shop/seller display name (required)</p>
             </div>
             <div>
-                <label class="block text-sm font-medium mb-1">App ID / API Key *</label>
+                <label class="block text-sm font-medium mb-1">App ID / API Key</label>
                 <input [(ngModel)]="formAppKey" type="text" placeholder="Enter App ID or API Key"
                     class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-primary font-mono text-sm">
                 <p class="text-xs text-muted-foreground mt-1">From {{ connectingMarketplace()?.name }} Seller Dashboard
                 </p>
             </div>
             <div>
-                <label class="block text-sm font-medium mb-1">App Secret / API Password *</label>
+                <label class="block text-sm font-medium mb-1">App Secret / API Password</label>
                 <input [(ngModel)]="formAppSecret" type="password" placeholder="Enter App Secret"
                     class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-primary font-mono text-sm">
                 <p class="text-xs text-muted-foreground mt-1">Keep this secret! Never share publicly</p>
@@ -342,6 +342,49 @@
                 class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:shadow-md disabled:opacity-50 flex items-center gap-2">
                 <lucide-icon *ngIf="connecting()" name="loader-2" class="w-4 h-4 animate-spin"></lucide-icon>
                 {{ connecting() ? 'Connecting...' : 'Connect' }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Flipkart OAuth Dialog -->
+<div *ngIf="flipkartDialogOpen()" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+    (click)="flipkartDialogOpen.set(false)">
+    <div class="bg-card rounded-xl shadow-2xl w-full max-w-sm m-4" (click)="$event.stopPropagation()">
+        <div class="p-5 border-b border-border">
+            <h2 class="text-lg font-bold">Connect Flipkart</h2>
+            <p class="text-xs text-muted-foreground mt-1">Paste callback code and state after login</p>
+        </div>
+
+        <div class="p-5 space-y-4">
+            <button *ngIf="flipkartLoginUrl()" type="button"
+                class="w-full px-3 py-2 text-sm border border-border rounded-lg hover:bg-accent"
+                (click)="openFlipkartLogin()">
+                Open Flipkart Login
+            </button>
+
+            <div>
+                <label class="block text-sm font-medium mb-1">Code</label>
+                <input [(ngModel)]="flipkartCode" type="text" placeholder="Enter callback code"
+                    class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-primary font-mono text-sm">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-1">State</label>
+                <input [(ngModel)]="flipkartState" type="text" placeholder="Enter callback state"
+                    class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-primary font-mono text-sm">
+            </div>
+        </div>
+
+        <div class="p-5 border-t border-border flex justify-end gap-2">
+            <button type="button" (click)="flipkartDialogOpen.set(false)" [disabled]="connecting()"
+                class="px-4 py-2 border border-border rounded-lg hover:bg-accent disabled:opacity-50">
+                Cancel
+            </button>
+            <button type="button" (click)="connectFlipkartNow()" [disabled]="connecting()"
+                class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:shadow-md disabled:opacity-50 flex items-center gap-2">
+                <lucide-icon *ngIf="connecting()" name="loader-2" class="w-4 h-4 animate-spin"></lucide-icon>
+                {{ connecting() ? 'Connecting...' : 'Connect Now' }}
             </button>
         </div>
     </div>

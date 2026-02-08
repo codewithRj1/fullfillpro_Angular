@@ -1,9 +1,10 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ApiService } from '../../core/services/api.service';
+import { UsersApi } from '../../core/apis/users.api';
 import { User, UserRole } from '../../core/models';
 import { IconModule } from '../../shared/modules/icon.module';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
     selector: 'app-users',
@@ -53,7 +54,7 @@ export class UsersComponent implements OnInit {
         return stats;
     });
 
-    constructor(private api: ApiService) { }
+    constructor(private usersApi: UsersApi, private toast: ToastService) { }
 
     ngOnInit() {
         this.loadData();
@@ -61,7 +62,7 @@ export class UsersComponent implements OnInit {
 
     loadData() {
         this.loading.set(true);
-        this.api.getUsers().subscribe({
+        this.usersApi.getUsers().subscribe({
             next: (data) => {
                 this.users.set(data);
                 this.loading.set(false);
@@ -87,7 +88,7 @@ export class UsersComponent implements OnInit {
 
     saveUser() {
         if (!this.formName() || !this.formEmail()) {
-            alert('Please fill required fields');
+            this.toast.error('Please fill required fields');
             return;
         }
 
@@ -100,14 +101,14 @@ export class UsersComponent implements OnInit {
 
         const editing = this.editingUser();
         if (editing) {
-            this.api.updateUser(editing.id, userData).subscribe({
+            this.usersApi.updateUser(editing.id, userData).subscribe({
                 next: () => {
                     this.loadData();
                     this.userDialogOpen.set(false);
                 }
             });
         } else {
-            this.api.createUser(userData).subscribe({
+            this.usersApi.createUser(userData).subscribe({
                 next: () => {
                     this.loadData();
                     this.userDialogOpen.set(false);

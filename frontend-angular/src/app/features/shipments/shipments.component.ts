@@ -1,9 +1,10 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ApiService } from '../../core/services/api.service';
+import { ShippingApi } from '../../core/apis/shipping.api';
 import { Shipment, Carrier } from '../../core/models';
 import { IconModule } from '../../shared/modules/icon.module';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
     selector: 'app-shipments',
@@ -42,7 +43,7 @@ export class ShipmentsComponent implements OnInit {
         });
     });
 
-    constructor(private api: ApiService) { }
+    constructor(private shippingApi: ShippingApi, private toast: ToastService) { }
 
     ngOnInit() {
         this.loadData();
@@ -50,7 +51,7 @@ export class ShipmentsComponent implements OnInit {
 
     loadData() {
         this.loading.set(true);
-        this.api.getShipments().subscribe({
+        this.shippingApi.getShipments().subscribe({
             next: (data) => {
                 this.shipments.set(data);
                 this.loading.set(false);
@@ -58,7 +59,7 @@ export class ShipmentsComponent implements OnInit {
             error: () => this.loading.set(false)
         });
 
-        this.api.getCarriers().subscribe({
+        this.shippingApi.getCarriers().subscribe({
             next: (data) => this.carriers.set(data),
             error: () => { }
         });
@@ -107,7 +108,7 @@ export class ShipmentsComponent implements OnInit {
 
     saveCarrier() {
         if (!this.formName() || !this.formAccountCode()) {
-            alert('Please fill required fields');
+            this.toast.error('Please fill required fields');
             return;
         }
 
@@ -122,14 +123,14 @@ export class ShipmentsComponent implements OnInit {
 
         const editing = this.editingCarrier();
         if (editing) {
-            this.api.updateCarrier(editing.id, carrierData).subscribe({
+            this.shippingApi.updateCarrier(editing.id, carrierData).subscribe({
                 next: () => {
                     this.loadData();
                     this.carrierDialogOpen.set(false);
                 }
             });
         } else {
-            this.api.createCarrier(carrierData).subscribe({
+            this.shippingApi.createCarrier(carrierData).subscribe({
                 next: () => {
                     this.loadData();
                     this.carrierDialogOpen.set(false);

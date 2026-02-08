@@ -231,6 +231,7 @@ export interface User {
 export interface MarketplaceConnection {
     id: string;
     marketplace: Marketplace;
+    storeName?: string;
     sellerId?: string;
     apiKey?: string;
     apiSecret?: string;

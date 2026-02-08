@@ -10,35 +10,101 @@ import { LoginRequest, LoginResponse, SignupRequest, SignupResponse, DecodedToke
 })
 export class AuthService {
   private apiUrl = 'https://localhost:7118/api';
+  private readonly roleClaimKeys = [
+    'role',
+    'roles',
+    'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'
+  ];
+  private readonly emailClaimKeys = ['email', 'unique_name'];
+  private readonly companyIdClaimKeys = ['companyId', 'company_id'];
+  private readonly userCodeClaimKeys = ['userCode', 'user_code'];
   private currentUserSubject = new BehaviorSubject<CurrentUser | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(private http: HttpClient) {
-    // Load user from localStorage if available
-    const storedUser = localStorage.getItem('currentUser');
-    if (storedUser) {
-      this.currentUserSubject.next(JSON.parse(storedUser));
-    }
+    this.loadSessionFromStorage();
   }
 
   /**
    * Decode JWT token
    */
-  private decodeToken(token: string): DecodedToken {
-    return jwtDecode<DecodedToken>(token);
+  private decodeToken(token: string): DecodedToken | null {
+    try {
+      return jwtDecode<DecodedToken>(token);
+    } catch {
+      return null;
+    }
+  }
+
+  private getFirstStringClaim(decoded: DecodedToken, keys: string[]): string {
+    for (const key of keys) {
+      const value = decoded[key];
+      if (typeof value === 'string' && value.trim().length > 0) {
+        return value;
+      }
+      if (Array.isArray(value)) {
+        const first = value.find((item) => typeof item === 'string' && item.trim().length > 0);
+        if (first) {
+          return first;
+        }
+      }
+    }
+    return '';
+  }
+
+  private getRoles(decoded: DecodedToken): string[] {
+    const roles = this.roleClaimKeys
+      .map((key) => decoded[key])
+      .flatMap((value) => {
+        if (typeof value === 'string') {
+          return value.split(',').map((role) => role.trim()).filter(Boolean);
+        }
+
+        if (Array.isArray(value)) {
+          return value.filter((role): role is string => typeof role === 'string').map((role) => role.trim()).filter(Boolean);
+        }
+
+        return [];
+      });
+
+    return [...new Set(roles)];
   }
 
   /**
    * Convert decoded token to CurrentUser
    */
   private tokenToUser(decoded: DecodedToken): CurrentUser {
+    const primaryRole = this.getRoles(decoded)[0] ?? 'user';
+
     return {
-      id: decoded.sub,
-      email: decoded.email,
-      role: decoded.role,
-      companyId: decoded.companyId,
-      userCode: decoded.userCode
+      id: decoded.sub ?? '',
+      email: this.getFirstStringClaim(decoded, this.emailClaimKeys),
+      role: primaryRole,
+      companyId: this.getFirstStringClaim(decoded, this.companyIdClaimKeys),
+      userCode: this.getFirstStringClaim(decoded, this.userCodeClaimKeys)
     };
+  }
+
+  private loadSessionFromStorage(): void {
+    const token = this.getToken();
+    if (token) {
+      const applied = this.setSessionFromToken(token);
+      if (!applied) {
+        this.logout();
+      }
+      return;
+    }
+
+    const storedUser = localStorage.getItem('currentUser');
+    if (!storedUser) {
+      return;
+    }
+
+    try {
+      this.currentUserSubject.next(JSON.parse(storedUser) as CurrentUser);
+    } catch {
+      this.currentUserSubject.next(null);
+    }
   }
 
   /**
@@ -50,14 +116,7 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, credentials)
       .pipe(
         tap(response => {
-          // Decode JWT token
-          const decoded = this.decodeToken(response.token);
-          const user = this.tokenToUser(decoded);
-
-          // Store token and user
-          localStorage.setItem('token', response.token);
-          localStorage.setItem('currentUser', JSON.stringify(user));
-          this.currentUserSubject.next(user);
+          this.setSessionFromToken(response.token);
         })
       );
   }
@@ -85,6 +144,26 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
+  getUserRole(): string {
+    return this.currentUserSubject.value?.role ?? '';
+  }
+
+  /**
+   * Store token and sync current user from JWT claims.
+   */
+  setSessionFromToken(token: string): boolean {
+    const decoded = this.decodeToken(token);
+    if (!decoded) {
+      return false;
+    }
+
+    const user = this.tokenToUser(decoded);
+    localStorage.setItem('token', token);
+    localStorage.setItem('currentUser', JSON.stringify(user));
+    this.currentUserSubject.next(user);
+    return true;
+  }
+
   /**
    * Logout
    */
@@ -98,7 +177,8 @@ export class AuthService {
    * Check if user is logged in
    */
   isLoggedIn(): boolean {
-    return !!this.getToken();
+    const token = this.getToken();
+    return !!token && !this.isTokenExpired();
   }
 
   /**
@@ -108,12 +188,35 @@ export class AuthService {
     const token = this.getToken();
     if (!token) return true;
 
-    try {
-      const decoded = this.decodeToken(token);
-      const now = Math.floor(Date.now() / 1000);
-      return decoded.exp < now;
-    } catch {
+    const decoded = this.decodeToken(token);
+    if (!decoded || typeof decoded.exp !== 'number') {
       return true;
     }
+
+    const now = Math.floor(Date.now() / 1000);
+    return decoded.exp < now;
+  }
+
+  /**
+   * Check if authenticated user has any required role.
+   */
+  hasAnyRole(requiredRoles: string[]): boolean {
+    if (requiredRoles.length === 0) {
+      return true;
+    }
+
+    const token = this.getToken();
+    if (!token) {
+      return false;
+    }
+
+    const decoded = this.decodeToken(token);
+    if (!decoded) {
+      return false;
+    }
+
+    const normalizedRoles = this.getRoles(decoded).map((role) => role.toLowerCase());
+    const normalizedRequiredRoles = requiredRoles.map((role) => role.toLowerCase());
+    return normalizedRequiredRoles.some((role) => normalizedRoles.includes(role));
   }
 }
